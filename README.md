@@ -1,78 +1,62 @@
-# OpenPoke: Execution Agent Overload
+# OpenPoke: Controlling agent overload
 
-This fork addresses **Execution Agent Overload** from the [OpenPoke explainer](https://www.shloked.com/openpoke). I kept its core architecture: the **Interaction Agent** talks to the user and delegates work to **Execution Agents**.
+An [OpenPoke](https://github.com/shlokkhemani/OpenPoke) fork that addresses **agent overload**. The **Interaction Agent (IA)** handles the conversation; saved **Execution Agents (EAs)** do the work. Each EA retains its identity, assigned work, state, and history across runs.
 
-## The problem
+## Architecture and diagrams
 
-Originally, the Interaction Agent received the full roster of Execution Agents on every request. As more agents accumulated, unrelated work took up more context. Each Execution Agent also loaded its growing history, and new work could start without a shared concurrency limit.
+| Diagram | What it explains |
+| --- | --- |
+| [Sequence diagram — Mermaid](https://mermaid.ai/app/projects/44c7fd0d-9b55-480d-bb34-43eecd563669/diagrams/d30bea16-7093-473f-971e-fea1f4a4dba9/edit) | How requests move through agents, memory, and the queue. |
+| [Solution board — Excalidraw](https://app.excalidraw.com/s/2C1urTzZVM0/2hmrnSZUcZZ) | Each problem, our change, and why it helps. |
 
-I treated overload as three connected problems: finding relevant work, loading useful memory, and controlling how much runs at once.
+The architecture at a glance:
 
-## What changed, and why
-
-### Interaction Agent
-
-The Interaction Agent follows saved task links or searches for relevant Execution Agents. Keyword search catches exact names and identifiers; semantic search finds related wording. It sees at most **30 compact candidates per turn, ten at a time**.
-
-Saved records and embeddings live in SQLite, so the local app does not need a separate vector database.
-
-Search suggests a match; it does not establish one. The Interaction Agent inspects the saved record before continuing it. Stable IDs preserve identity when names change. Conflicting confirmed invoice or case numbers rule out a match: two tasks involving the same person can still be different tasks.
-
-It also searches archived work before creating another Execution Agent. This preserves continuity and reduces duplicates.
-
-### Agent Memory
-
-An Execution Agent receives its task state, a summary of earlier work, and recent history within a fixed budget. It can retrieve original records for exact recipients, amounts, or instructions. New tool results remain stored even when too large for the prompt.
-
-This keeps long-running work manageable without relying on a summary for every detail. Conversation Memory also has a context budget.
-
-### Execution Agents
-
-Execution Agents and Triggers share a persistent queue. By default, **up to four executions run at once**, with up to **100 waiting jobs**. The same Execution Agent cannot run two jobs simultaneously. Related results return together, including failures.
-
-This bounds resource use and prevents simultaneous updates to the same saved work. Executions have a configurable **300-second deadline**. Read-only timeouts leave the task available and permit at most one automatic retry. Attempted writes or unknown tools retain review protection. Blocked submissions return their reason immediately. After a restart, queued work can resume.
-
-Completed Execution Agents archive after 30 inactive days and remain searchable. Pending work, approvals, and active Triggers prevent automatic archival. Inactivity alone does not mean a task is finished.
-
-## How I test it
-
-[Automated tests](tests/README.md) use isolated databases, scripted model responses, and fake Gmail results. Real HTTP calls are blocked. They cover:
-
-- Reusing saved work, rejecting conflicting identities, and handling ambiguous requests.
-- Keeping candidate lists and memory bounded while preserving original records.
-- Queue limits, grouped results, Triggers, restart recovery, and clearing history.
-
-The [retrieval evaluator](tests/evaluation/evaluate_agent_retrieval.py) runs **60 labeled cases**. Its target is at least **95% recall@30**: the expected Execution Agent should appear among the returned candidates. It also requires no identity-conflict or ambiguity-guard failures. Benchmarks use **1,000 and 10,000 saved Execution Agents** to check candidate counts and local search time.
-
-From the repository root:
-
-```powershell
-python -m pip install -r requirements-dev.txt
-python -m pytest -q
-python tests/evaluation/evaluate_agent_retrieval.py --benchmark --output server/data/agent_evaluation_report.json
+```mermaid
+flowchart LR
+    U[User] <--> I[Interaction Agent]
+    I <-->|Find and inspect EAs| R[(EA Registry and Search)]
+    I -->|Submit EA jobs| Q[Shared Persistent Queue]
+    T[Scheduled Triggers] --> Q
+    Q -->|Dispatch| E[Execution Agents]
+    E -->|Save outcomes| Q
+    E <-->|Load context and save records| M[(EA Execution Memory)]
+    E <--> G[Gmail and Task Tools]
+    Q -->|Grouped outcomes| I
 ```
 
-## Is it working well?
+EA records, search data, execution memory, and the queue use SQLite. No separate vector database is needed.
 
-Latest offline run, November 14, 2026:
+## The problems, changes, and why
+
+| Problem | What changed | Why it helps |
+| --- | --- | --- |
+| **IA context:** loading the full EA roster bloats its context window. | Use recent EA links or keyword + semantic search: **30 candidates per turn, 10 at a time**. Budget chat history. | Keep relevant context in the prompt; keep the directory in storage. |
+| **EA history:** loading an EA's entire history bloats its context window. | Budget saved state, an earlier-work summary, and recent history. Retrieve exact source records on demand. | Keep each run's context manageable while preserving original details. |
+| **Execution overload:** too many simultaneous EA runs overload resources. | Share one persistent queue across IA requests and Triggers: **4 running, 100 waiting, 1 running per EA**. | Bound resource use and prevent concurrent updates to the same EA. |
+
+## Keeping work consistent
+
+- **Verify and reuse:** inspect the EA's stable ID and current record. Reject conflicting confirmed invoice/case IDs. Search active and archived EAs before creating another to keep related history together.
+- **Recover safely:** a **300-second run deadline** frees stalled slots. Restart resumes unexpired queued jobs. Eligible interrupted read-only work allows one automatic retry per initiating request; interrupted writes or unknown tools require review.
+- **Group outcomes:** return related results after submissions finish and every job has an outcome, including failures. Cap each initiating request at **5 follow-up stages and 20 job submissions**.
+- **Archive safely:** archive eligible completed EAs after **30 inactive days**. Pending work, approvals, active Triggers, or unresolved execution issues prevent archival. Archived EAs stay searchable and reusable.
+
+Limits are configurable defaults; token budgets are estimates with a safety margin. The implementation supports **one backend process**.
+
+## Validation
+
+Recorded offline results, **November 14, 2026**:
 
 - **129 automated tests passed.**
-- **100% recall@30** across the 60 labeled cases, with no identity-conflict or ambiguity-guard failures.
-- The candidate pool stayed at **30** in both the 1,000-agent and 10,000-agent benchmarks.
+- Expected EAs appeared in the top 30 in **all 60 retrieval cases**, with no identity-conflict or ambiguity-guard failures.
+- Candidate pools stayed at **30** with both **1,000 and 10,000 saved EAs**.
 
-The offline evaluator uses deterministic stand-in embeddings. These checks do not prove that the live Interaction Agent always chooses correctly or that real Gmail workflows succeed. Those still need end-to-end testing. The implementation currently supports one backend process.
+These checks use stand-ins for embeddings, model responses, and Gmail. Live EA selection and Gmail workflows still need end-to-end validation.
 
-## Showing the results
+## Run and explore
 
-I am considering a before-and-after screenshot comparison. I would run the same request with the same saved work, then compare the chat result alongside the selected Execution Agent, candidate count, and context size from logs or test output. Useful cases are continuing an old task, distinguishing two invoices for the same person, and submitting several tasks together.
+- [Local setup](docs/setup.md)
+- [Tests and evaluation commands](tests/README.md)
+- [Implementation details and configuration](docs/agent-optimization.md)
 
-This is a proposed demo, not a completed test. I would pair screenshots with automated results to show both visible behavior and the checks behind it.
-
-## Run locally and read more
-
-- [Setup](docs/setup.md)
-- [Implementation details and limits](docs/agent-optimization.md)
-- [Solution board and sequence diagram](docs/diagrams/README.md)
-- [Sequence diagram source](docs/diagrams/openpoke-overload-sequence.mmd)
-
-Built on [OpenPoke](https://github.com/shlokkhemani/OpenPoke). MIT license; see [LICENSE](LICENSE).
+Built on OpenPoke. MIT license; see [LICENSE](LICENSE).
