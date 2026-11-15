@@ -1,0 +1,1222 @@
+{
+  "description": "Labeled task discovery cases. Offline vectors are a deterministic test double, not a quality claim about hosted embeddings.",
+  "agents": [
+    {
+      "key": "acme-1042",
+      "name": "Sarah Acme invoice",
+      "purpose": "Follow up on unpaid Acme invoice INV-1042",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1042"
+        },
+        {
+          "kind": "email",
+          "value": "sarah@acme.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "acme-1088",
+      "name": "Sarah Acme invoice",
+      "purpose": "Review overdue Acme invoice INV-1088",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        },
+        {
+          "kind": "email",
+          "value": "sarah@acme.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "beta-2001",
+      "name": "Morgan Beta invoice",
+      "purpose": "Collect outstanding Beta payment INV-2001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-2001"
+        },
+        {
+          "kind": "email",
+          "value": "morgan@beta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "beta-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "delta-3001",
+      "name": "Priya Delta invoice",
+      "purpose": "Follow up on Delta invoice INV-3001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-3001"
+        },
+        {
+          "kind": "email",
+          "value": "priya@delta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "delta-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "atlas-4001",
+      "name": "Jules Atlas invoice",
+      "purpose": "Resolve Atlas invoice INV-4001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-4001"
+        },
+        {
+          "kind": "email",
+          "value": "jules@atlas.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "atlas-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "cedar-5001",
+      "name": "Sam Cedar invoice",
+      "purpose": "Collect unpaid Cedar invoice INV-5001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-5001"
+        },
+        {
+          "kind": "email",
+          "value": "sam@cedar.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "cedar-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "orbit-contract",
+      "name": "Alex Orbit contract",
+      "purpose": "Renew Orbit supplier agreement",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-ORBIT"
+        },
+        {
+          "kind": "email",
+          "value": "alex@orbit.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "orbit-contract"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "orbit-6001",
+      "name": "Alex Orbit invoice",
+      "purpose": "Review Orbit invoice INV-6001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-6001"
+        },
+        {
+          "kind": "email",
+          "value": "alex@orbit.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "orbit-billing"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "atlas-meeting",
+      "name": "Morgan Atlas meeting",
+      "purpose": "Schedule Atlas planning appointment",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "MEETING-ATLAS"
+        },
+        {
+          "kind": "email",
+          "value": "morgan@atlas.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "atlas-meeting"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "cedar-travel",
+      "name": "Sam Cedar travel",
+      "purpose": "Book Cedar conference flights and itinerary",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "TRAVEL-CEDAR"
+        },
+        {
+          "kind": "email",
+          "value": "sam@cedar.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "cedar-travel"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "delta-hiring",
+      "name": "Priya Delta hiring",
+      "purpose": "Recruit Delta engineering candidates",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "HIRING-DELTA"
+        },
+        {
+          "kind": "email",
+          "value": "priya@delta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "delta-hiring"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "acme-contract",
+      "name": "Sarah Acme contract",
+      "purpose": "Renew Acme service agreement",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-ACME"
+        },
+        {
+          "kind": "email",
+          "value": "sarah@acme.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "acme-contract"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "beta-bug",
+      "name": "Morgan Beta bug",
+      "purpose": "Investigate Beta login defect",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "BUG-BETA"
+        },
+        {
+          "kind": "email",
+          "value": "morgan@beta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "beta-bug"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "orbit-release",
+      "name": "Alex Orbit release",
+      "purpose": "Ship Orbit application rollout",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "RELEASE-ORBIT"
+        },
+        {
+          "kind": "email",
+          "value": "alex@orbit.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "orbit-release"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "atlas-research",
+      "name": "Jules Atlas research",
+      "purpose": "Investigate Atlas market opportunity",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "RESEARCH-ATLAS"
+        },
+        {
+          "kind": "email",
+          "value": "jules@atlas.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "atlas-research"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "acme-7001-archived",
+      "name": "Sarah Acme old invoice",
+      "purpose": "Archived Acme invoice INV-7001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-7001"
+        },
+        {
+          "kind": "email",
+          "value": "sarah@acme.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "acme-old-billing"
+        }
+      ],
+      "archived": true
+    },
+    {
+      "key": "beta-contract-archived",
+      "name": "Morgan Beta old contract",
+      "purpose": "Archived Beta supplier renewal",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-BETA-OLD"
+        },
+        {
+          "kind": "email",
+          "value": "morgan@beta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "beta-old-contract"
+        }
+      ],
+      "archived": true
+    },
+    {
+      "key": "cedar-refund",
+      "name": "Sam Cedar refund",
+      "purpose": "Resolve Cedar customer chargeback",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "REFUND-CEDAR"
+        },
+        {
+          "kind": "email",
+          "value": "sam@cedar.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "cedar-refund"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "delta-reminder",
+      "name": "Priya Delta reminder",
+      "purpose": "Remind Priya about Delta filing deadline",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "REMINDER-DELTA"
+        },
+        {
+          "kind": "email",
+          "value": "priya@delta.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "delta-reminder"
+        }
+      ],
+      "archived": false
+    },
+    {
+      "key": "orbit-expense",
+      "name": "Alex Orbit expense",
+      "purpose": "Reconcile Orbit travel receipts",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "EXPENSE-ORBIT"
+        },
+        {
+          "kind": "email",
+          "value": "alex@orbit.example"
+        },
+        {
+          "kind": "thread_id",
+          "value": "orbit-expense"
+        }
+      ],
+      "archived": false
+    }
+  ],
+  "cases": [
+    {
+      "id": "exact-01",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1042"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-02",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-03",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-2001"
+        }
+      ],
+      "expected_keys": [
+        "beta-2001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-04",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-3001"
+        }
+      ],
+      "expected_keys": [
+        "delta-3001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-05",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-4001"
+        }
+      ],
+      "expected_keys": [
+        "atlas-4001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-06",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-5001"
+        }
+      ],
+      "expected_keys": [
+        "cedar-5001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-07",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-ORBIT"
+        }
+      ],
+      "expected_keys": [
+        "orbit-contract"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-08",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-6001"
+        }
+      ],
+      "expected_keys": [
+        "orbit-6001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-09",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "MEETING-ATLAS"
+        }
+      ],
+      "expected_keys": [
+        "atlas-meeting"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-10",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "TRAVEL-CEDAR"
+        }
+      ],
+      "expected_keys": [
+        "cedar-travel"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-11",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "HIRING-DELTA"
+        }
+      ],
+      "expected_keys": [
+        "delta-hiring"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-12",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-ACME"
+        }
+      ],
+      "expected_keys": [
+        "acme-contract"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-13",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "BUG-BETA"
+        }
+      ],
+      "expected_keys": [
+        "beta-bug"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-14",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "RELEASE-ORBIT"
+        }
+      ],
+      "expected_keys": [
+        "orbit-release"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "exact-15",
+      "category": "exact_reference",
+      "query": "Continue the saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "RESEARCH-ATLAS"
+        }
+      ],
+      "expected_keys": [
+        "atlas-research"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-01",
+      "category": "paraphrase",
+      "query": "Ask Sarah at Acme for settlement of the bill INV-1042",
+      "references": [],
+      "expected_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-02",
+      "category": "paraphrase",
+      "query": "Nudge Sarah at Acme on the balance INV-1088",
+      "references": [],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-03",
+      "category": "paraphrase",
+      "query": "Get Morgan to settle the Beta bill",
+      "references": [],
+      "expected_keys": [
+        "beta-2001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-04",
+      "category": "paraphrase",
+      "query": "Check the Delta outstanding balance with Priya",
+      "references": [],
+      "expected_keys": [
+        "delta-3001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-05",
+      "category": "paraphrase",
+      "query": "Ask Jules about the unpaid Atlas bill",
+      "references": [],
+      "expected_keys": [
+        "atlas-4001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-06",
+      "category": "paraphrase",
+      "query": "Nudge Sam for the Cedar outstanding balance",
+      "references": [],
+      "expected_keys": [
+        "cedar-5001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-07",
+      "category": "paraphrase",
+      "query": "Continue negotiating the Orbit agreement with Alex",
+      "references": [],
+      "expected_keys": [
+        "orbit-contract"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-08",
+      "category": "paraphrase",
+      "query": "Ask Alex to settle the Orbit bill",
+      "references": [],
+      "expected_keys": [
+        "orbit-6001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-09",
+      "category": "paraphrase",
+      "query": "Arrange the Atlas appointment with Morgan",
+      "references": [],
+      "expected_keys": [
+        "atlas-meeting"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-10",
+      "category": "paraphrase",
+      "query": "Continue the Cedar flight itinerary for Sam",
+      "references": [],
+      "expected_keys": [
+        "cedar-travel"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-11",
+      "category": "paraphrase",
+      "query": "Follow up on Delta recruiting with Priya",
+      "references": [],
+      "expected_keys": [
+        "delta-hiring"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-12",
+      "category": "paraphrase",
+      "query": "Continue the Acme agreement renewal with Sarah",
+      "references": [],
+      "expected_keys": [
+        "acme-contract"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-13",
+      "category": "paraphrase",
+      "query": "Look into the Beta authentication defect for Morgan",
+      "references": [],
+      "expected_keys": [
+        "beta-bug"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-14",
+      "category": "paraphrase",
+      "query": "Continue the Orbit rollout with Alex",
+      "references": [],
+      "expected_keys": [
+        "orbit-release"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-15",
+      "category": "paraphrase",
+      "query": "Resume the Atlas market investigation with Jules",
+      "references": [],
+      "expected_keys": [
+        "atlas-research"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-16",
+      "category": "paraphrase",
+      "query": "Resolve Sams Cedar chargeback",
+      "references": [],
+      "expected_keys": [
+        "cedar-refund"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-17",
+      "category": "paraphrase",
+      "query": "Continue Priyas Delta deadline alert",
+      "references": [],
+      "expected_keys": [
+        "delta-reminder"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-18",
+      "category": "paraphrase",
+      "query": "Reconcile Alexs Orbit receipts",
+      "references": [],
+      "expected_keys": [
+        "orbit-expense"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-19",
+      "category": "paraphrase",
+      "query": "Collect the Beta receivable from Morgan",
+      "references": [],
+      "expected_keys": [
+        "beta-2001"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "paraphrase-20",
+      "category": "paraphrase",
+      "query": "Finish Sams Cedar flight booking",
+      "references": [],
+      "expected_keys": [
+        "cedar-travel"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "ambiguous-01",
+      "category": "ambiguous",
+      "query": "Continue Sarahs Acme invoice",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-02",
+      "category": "ambiguous",
+      "query": "Follow up on the Acme bill",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-03",
+      "category": "ambiguous",
+      "query": "Prepare the Acme payment nudge",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-04",
+      "category": "ambiguous",
+      "query": "Continue Sarahs Acme invoice",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-05",
+      "category": "ambiguous",
+      "query": "Follow up on the Acme bill",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-06",
+      "category": "ambiguous",
+      "query": "Prepare the Acme payment nudge",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-07",
+      "category": "ambiguous",
+      "query": "Continue Sarahs Acme invoice",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-08",
+      "category": "ambiguous",
+      "query": "Follow up on the Acme bill",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-09",
+      "category": "ambiguous",
+      "query": "Prepare the Acme payment nudge",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "ambiguous-10",
+      "category": "ambiguous",
+      "query": "Continue Sarahs Acme invoice",
+      "references": [
+        {
+          "kind": "thread_id",
+          "value": "acme-billing"
+        }
+      ],
+      "expected_keys": [
+        "acme-1042",
+        "acme-1088"
+      ],
+      "expected_action": "clarify"
+    },
+    {
+      "id": "archived-01",
+      "category": "archived",
+      "query": "Continue this older saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-7001"
+        }
+      ],
+      "expected_keys": [
+        "acme-7001-archived"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "archived-02",
+      "category": "archived",
+      "query": "Continue this older saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-BETA-OLD"
+        }
+      ],
+      "expected_keys": [
+        "beta-contract-archived"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "archived-03",
+      "category": "archived",
+      "query": "Continue this older saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-7001"
+        }
+      ],
+      "expected_keys": [
+        "acme-7001-archived"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "archived-04",
+      "category": "archived",
+      "query": "Continue this older saved task",
+      "references": [
+        {
+          "kind": "case_id",
+          "value": "CONTRACT-BETA-OLD"
+        }
+      ],
+      "expected_keys": [
+        "beta-contract-archived"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "archived-05",
+      "category": "archived",
+      "query": "Continue this older saved task",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-7001"
+        }
+      ],
+      "expected_keys": [
+        "acme-7001-archived"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "no-match-01",
+      "category": "no_match",
+      "query": "Find invoice UNSEEN-001",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "UNSEEN-001"
+        }
+      ],
+      "expected_keys": [],
+      "expected_action": "create"
+    },
+    {
+      "id": "no-match-02",
+      "category": "no_match",
+      "query": "Find invoice UNSEEN-002",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "UNSEEN-002"
+        }
+      ],
+      "expected_keys": [],
+      "expected_action": "create"
+    },
+    {
+      "id": "no-match-03",
+      "category": "no_match",
+      "query": "Find invoice UNSEEN-003",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "UNSEEN-003"
+        }
+      ],
+      "expected_keys": [],
+      "expected_action": "create"
+    },
+    {
+      "id": "no-match-04",
+      "category": "no_match",
+      "query": "Find invoice UNSEEN-004",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "UNSEEN-004"
+        }
+      ],
+      "expected_keys": [],
+      "expected_action": "create"
+    },
+    {
+      "id": "no-match-05",
+      "category": "no_match",
+      "query": "Find invoice UNSEEN-005",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "UNSEEN-005"
+        }
+      ],
+      "expected_keys": [],
+      "expected_action": "create"
+    },
+    {
+      "id": "conflict-01",
+      "category": "identifier_conflict",
+      "query": "Sarah Acme invoice follow-up unpaid bill",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "forbidden_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "conflict-02",
+      "category": "identifier_conflict",
+      "query": "Sarah Acme invoice follow-up unpaid bill",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "forbidden_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "conflict-03",
+      "category": "identifier_conflict",
+      "query": "Sarah Acme invoice follow-up unpaid bill",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "forbidden_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "conflict-04",
+      "category": "identifier_conflict",
+      "query": "Sarah Acme invoice follow-up unpaid bill",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "forbidden_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    },
+    {
+      "id": "conflict-05",
+      "category": "identifier_conflict",
+      "query": "Sarah Acme invoice follow-up unpaid bill",
+      "references": [
+        {
+          "kind": "invoice_id",
+          "value": "INV-1088"
+        }
+      ],
+      "expected_keys": [
+        "acme-1088"
+      ],
+      "forbidden_keys": [
+        "acme-1042"
+      ],
+      "expected_action": "reuse"
+    }
+  ]
+}

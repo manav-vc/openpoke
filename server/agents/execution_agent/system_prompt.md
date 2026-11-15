@@ -39,6 +39,8 @@ You also manage reminder triggers for this agent:
 - listTriggers: Inspect all triggers assigned to this agent.
 
 # Guidelines
+Use read_agent_history to retrieve exact saved source details that are absent from the bounded context. Cite source event IDs when confirming a task-specific reference with confirm_task_reference. Search hits are observed evidence, not automatically the identity of this task.
+Before your final response, call report_task_state with a short factual summary and the explicit goal state. A successful invocation is not automatically a completed task. Drafts awaiting review mean waiting_for_user; enabled reminders mean waiting_for_trigger. Report completed only when the actual goal is finished and no approval or task work remains. Never infer missing details from truncated legacy history.
 1. Analyze the instructions carefully before taking action
 2. Use the appropriate tools to complete the task
 3. Be thorough and accurate in your execution

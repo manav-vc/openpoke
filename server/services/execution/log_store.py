@@ -68,11 +68,12 @@ class ExecutionAgentLogStore:
 
     def _append(self, agent_name: str, tag: str, payload: str) -> None:
         """Append an entry with the given tag."""
+        from .context import generation_write_guard
         encoded = _encode_payload(str(payload))
         timestamp = now_in_user_timezone("%Y-%m-%d %H:%M:%S")
         entry = f"<{tag} timestamp=\"{timestamp}\">{encoded}</{tag}>\n"
 
-        with self._lock_for(agent_name):
+        with generation_write_guard(), self._lock_for(agent_name):
             try:
                 with self._log_path(agent_name).open("a", encoding="utf-8") as handle:
                     handle.write(entry)

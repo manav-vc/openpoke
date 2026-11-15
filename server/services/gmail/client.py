@@ -470,6 +470,8 @@ def execute_gmail_tool(
     *,
     arguments: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    from ..execution.context import check_execution_generation
+    check_execution_generation()
     prepared_arguments: Dict[str, Any] = {}
     if isinstance(arguments, dict):
         for key, value in arguments.items():
@@ -480,6 +482,7 @@ def execute_gmail_tool(
 
     try:
         client = _get_composio_client()
+        check_execution_generation()
         result = client.client.tools.execute(
             tool_name,
             user_id=composio_user_id,

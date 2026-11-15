@@ -58,6 +58,83 @@ class ConversationLog:
         self._lock = threading.Lock()
         self._ensure_directory()
         self._working_memory_log = _resolve_working_memory_log()
+        self._projection_ids = set()
+        self._projection_signature = None
+
+    def _load_projection_ids_locked(self):
+        stat = self._path.stat() if self._path.exists() else None
+        signature = (stat.st_mtime_ns, stat.st_size) if stat else None
+        if signature != self._projection_signature:
+            existing = self._path.read_text(encoding="utf-8") if stat else ""
+            self._projection_ids = set()
+            for line in existing.splitlines():
+                if self._parse_line(line) is None:
+                    continue
+                match = re.search(r'event_id="(\d+)"', line.split(">", 1)[0])
+                if match:
+                    self._projection_ids.add(int(match.group(1)))
+            self._projection_signature = signature
+        return self._projection_ids
+
+    def append_once(self, tag: str, content: str, *, event_key: str, generation: int,
+                    registry, agent_ids: Optional[list[str]] = None,
+                    request_id: Optional[str] = None, batch_id: Optional[str] = None) -> int:
+        """Persist first, then project once into the existing UI-compatible log.
+
+        The SQLite journal is the recovery authority. The event_id attribute is
+        deliberately ignored by legacy parsers and survives a crash between the
+        file append and completion of an interaction operation.
+        """
+        timestamp = now_in_user_timezone("%Y-%m-%d %H:%M:%S")
+        ids = list(dict.fromkeys(agent_ids or []))
+        event_id = registry.append_event(
+            "conversation", {"tag": tag, "content": str(content), "timestamp": timestamp,
+                             "agent_ids": ids, "batch_id": batch_id},
+            agent_id=ids[0] if len(ids) == 1 else None, request_id=request_id,
+            event_key=event_key, generation=generation)
+        self._project_event(registry, event_id, generation)
+        return event_id
+
+    def _project_event(self, registry, event_id: int, generation: int) -> None:
+        event = registry.get_event(event_id)
+        payload = event["payload"]
+        appended = False
+        # Hold the generation transaction through file projection. Reset either
+        # runs before this check or clears the projection after this append.
+        with registry.connect(write=True, generation=generation):
+            with self._lock:
+                if event_id in self._load_projection_ids_locked():
+                    return
+                needs_newline = False
+                if self._path.exists() and self._path.stat().st_size:
+                    with self._path.open("rb") as handle:
+                        handle.seek(-1, 2)
+                        needs_newline = handle.read(1) != b"\n"
+                line = self._formatter(payload["tag"], payload["timestamp"], payload["content"])
+                line = line.replace(">", f' event_id="{event_id}">', 1)
+                self._ensure_directory()
+                with self._path.open("a", encoding="utf-8") as handle:
+                    if needs_newline:
+                        handle.write("\n")
+                    handle.write(line)
+                    handle.flush()
+                stat = self._path.stat()
+                self._projection_ids.add(event_id)
+                self._projection_signature = (stat.st_mtime_ns, stat.st_size)
+                appended = True
+        if appended:
+            self._working_memory_log.append_entry(payload["tag"], payload["content"], payload["timestamp"])
+            self._notify_summarization()
+
+    def project_pending(self, registry, generation: int) -> None:
+        with registry.connect(generation=generation) as conn:
+            ids = [row[0] for row in conn.execute(
+                "SELECT id FROM events WHERE kind='conversation' AND generation=? ORDER BY id", (generation,))]
+        with self._lock:
+            projected = self._load_projection_ids_locked()
+            ids = [event_id for event_id in ids if event_id not in projected]
+        for event_id in ids:
+            self._project_event(registry, event_id, generation)
 
     def _ensure_directory(self) -> None:
         try:
@@ -193,6 +270,8 @@ class ConversationLog:
 
     def clear(self) -> None:
         with self._lock:
+            self._projection_ids.clear()
+            self._projection_signature = None
             try:
                 if self._path.exists():
                     self._path.unlink()

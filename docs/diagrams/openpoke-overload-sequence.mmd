@@ -1,0 +1,91 @@
+---
+title: OpenPoke — Agent Overload Optimization
+config:
+  theme: base
+  themeVariables:
+    fontFamily: Inter, Arial, sans-serif
+    fontSize: 14px
+    actorBkg: "#eff6ff"
+    actorBorder: "#93c5fd"
+    actorTextColor: "#1e293b"
+    actorLineColor: "#cbd5e1"
+    signalColor: "#475569"
+    signalTextColor: "#334155"
+    labelBoxBkgColor: "#f8fafc"
+    labelBoxBorderColor: "#cbd5e1"
+    labelTextColor: "#334155"
+    loopTextColor: "#334155"
+    noteBkgColor: "#fffbeb"
+    noteBorderColor: "#fcd34d"
+    noteTextColor: "#475569"
+  sequence:
+    mirrorActors: false
+    actorMargin: 24
+    width: 140
+    messageMargin: 30
+    noteMargin: 12
+    useMaxWidth: true
+---
+sequenceDiagram
+    autonumber
+    participant U as User
+    participant I as Interaction Agent
+    participant R as Task Registry<br/>and Search
+    participant Q as Shared Durable<br/>Queue
+    participant W as Execution<br/>Workers
+    participant S as Durable<br/>Memory
+    participant T as Gmail and<br/>Task Tools
+
+    Note over I,S: Optimization: retrieve relevant saved tasks, bound model history, and cap work in flight.<br/>Shown limits are configurable defaults for one backend process.
+
+    rect rgb(239, 246, 255)
+        Note over I,R: 1. Bound discovery instead of injecting the full agent roster
+        U->>I: Request work
+        alt Stable task ID or conversation link is known
+            I->>R: Resolve the saved task identity
+        else Discover a relevant saved task
+            I->>R: Search by keywords, meaning and identifiers
+            R-->>I: Up to 30 compact candidates, 10 per page
+        end
+        I->>R: Inspect task identity and current version
+        R-->>I: Verified stable ID, version and state
+        Note over I,R: Clarify ambiguous identities before dispatch.<br/>Create explicitly only after archive-inclusive discovery.
+    end
+
+    rect rgb(255, 247, 237)
+        Note over Q,W: 2. Bound execution through one shared chat and reminder queue
+        loop Each task submitted for this request
+            I->>Q: Enqueue inspected ID, version and instructions
+            alt Fewer than 100 waiting jobs
+                Q->>Q: Persist queued job and request-group membership
+            else Queue is full
+                Q->>Q: Persist rejected terminal outcome
+            end
+        end
+        I->>Q: Seal request group when submissions finish
+        Note over Q,W: Workers may start before sealing; sealing gates final delivery.<br/>At most 4 active jobs, one per task; start oldest runnable work.<br/>Expire after 5 minutes waiting; runtime timeout is 300 seconds.
+        loop Accepted jobs; up to 4 workers run in parallel
+            Q->>W: Claim job when a worker slot and task are free
+            W->>S: Load bounded task history
+            S-->>W: State, summary and recent complete exchanges<br/>within 8,000 estimated history tokens
+            loop At most 8 tool iterations
+                W->>S: Journal tool intent before effects
+                W->>T: Execute tool
+                T-->>W: Tool outcome
+                W->>S: Preserve full result or artifact
+                opt Exact older details are needed
+                    W->>S: Retrieve cited source or bounded excerpt
+                    S-->>W: Original evidence on demand
+                end
+            end
+            W-->>Q: Persist succeeded, failed or interrupted outcome
+        end
+        Note over Q,W: Restart resumes unexpired queued jobs.<br/>Safe read-only failures permit at most one automatic retry per request.<br/>Attempted writes or unknown tools require review; uncertain actions are not automatically replayed.
+    end
+
+    rect rgb(240, 253, 244)
+        Note over I,Q: 3. Consolidate results instead of sending one update per worker
+        Q-->>I: Deliver once group is sealed and all members are terminal
+        Note over I,Q: Rejected, expired, failed and interrupted jobs also count.
+        I-->>U: One grouped update with outcomes or required review
+    end

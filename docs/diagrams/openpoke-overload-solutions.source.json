@@ -1,0 +1,2472 @@
+{
+  "sceneUrl": "https://app.excalidraw.com/s/2C1urTzZVM0/2hmrnSZUcZZ",
+  "updated": "2026-11-14",
+  "type": "categorized-solution-board",
+  "purpose": "Interview walkthrough of agent overload fixes",
+  "categories": [
+    {
+      "key": "find",
+      "title": "Find and reuse work",
+      "caption": "Keep discovery relevant as saved tasks grow.",
+      "x": 40,
+      "color": "#6741d9",
+      "tint": "#f3f0ff",
+      "cards": [
+        {
+          "n": "01",
+          "title": "Search instead of loading the roster",
+          "problem": "Every request carried all saved agent names.",
+          "change": "Use saved task links, or keyword + semantic search.\nShow at most 30 compact candidates, 10 at a time.",
+          "benefit": "The model sees relevant work; the full directory\nstays in storage."
+        },
+        {
+          "n": "02",
+          "title": "Check identity before continuing",
+          "problem": "Similar tasks can involve the same person.",
+          "change": "Inspect the current saved record and stable task ID.\nReject conflicting confirmed invoice or case IDs.",
+          "benefit": "Avoid continuing the wrong task. Example: the same\nsender's INV-1042 and INV-1043 are different tasks."
+        },
+        {
+          "n": "03",
+          "title": "Reuse work before creating more",
+          "problem": "New agents can duplicate an existing task\nand split its history.",
+          "change": "Search active and archived work before creation.\nContinue a verified match under its existing ID.",
+          "benefit": "Keep one task's history together and reduce\nduplicate agents."
+        }
+      ]
+    },
+    {
+      "key": "memory",
+      "title": "Keep context useful",
+      "caption": "Small prompts, with original details still available.",
+      "x": 790,
+      "color": "#1971c2",
+      "tint": "#e7f5ff",
+      "cards": [
+        {
+          "n": "04",
+          "title": "Bound the conversation context",
+          "problem": "The shared chat grows with every interaction.",
+          "change": "Give the Interaction Agent budgeted conversation\nmemory and recent saved task links.",
+          "benefit": "Keep the chat context manageable while retaining\nlinks for requests such as 'continue that task'."
+        },
+        {
+          "n": "05",
+          "title": "Load a compact task memory",
+          "problem": "A long-running task builds up more history\nthan its worker needs on every run.",
+          "change": "Load structured task state, a summary of earlier\nwork, and recent history within a fixed budget.",
+          "benefit": "Keep working context bounded as task history grows.\nToken counts are estimates with a safety margin."
+        },
+        {
+          "n": "06",
+          "title": "Retrieve exact details on demand",
+          "problem": "A summary may omit an exact amount,\nrecipient, or instruction.",
+          "change": "Preserve new tool results as full source records.\nRetrieve original events or large-result excerpts.",
+          "benefit": "Check exact details without putting every original\nrecord into the prompt."
+        }
+      ]
+    },
+    {
+      "key": "run",
+      "title": "Run and maintain work",
+      "caption": "Bound execution and preserve task continuity.",
+      "x": 1540,
+      "color": "#099268",
+      "tint": "#e6fcf5",
+      "cards": [
+        {
+          "n": "07",
+          "title": "Put all executions in one queue",
+          "problem": "Unrestricted starts can overload resources\nor update the same task at the same time.",
+          "change": "Chat and triggers share a persistent queue:\n4 running, 100 waiting, at most 1 run per task.",
+          "benefit": "Bound active work and prevent concurrent\nupdates to the same saved task."
+        },
+        {
+          "n": "08",
+          "title": "Limit stalls and recover safely",
+          "problem": "Stalled jobs hold resources; a restart or retry\ncan leave work uncertain.",
+          "change": "300-second run deadline; resume unexpired queued\njobs. Allow 1 automatic safe read-only retry per request.\nWrites or unknown tools require review if interrupted.",
+          "benefit": "Release stuck workers and preserve recovery options\nwithout blindly repeating an uncertain action."
+        },
+        {
+          "n": "09",
+          "title": "Return related results together",
+          "problem": "Parallel jobs finish at different times,\ncreating fragmented follow-up handling.",
+          "change": "Save each request's result group. Deliver it after\nthe group is sealed and every job is terminal,\nincluding failed or rejected jobs.",
+          "benefit": "Handle related outcomes together. Defaults also\ncap follow-up stages at 5 and submissions at 20."
+        },
+        {
+          "n": "10",
+          "title": "Archive completed work safely",
+          "problem": "Completed tasks accumulate, but being inactive\ndoes not mean a task is finished.",
+          "change": "Archive explicitly completed tasks after 30 inactive\ndays. Pending work, approvals and active triggers\nprevent automatic archival.",
+          "benefit": "Reduce active-list clutter. Archived tasks stay\nsearchable and can be reopened for continuation."
+        }
+      ]
+    }
+  ],
+  "evidence": {
+    "recordedDate": "2026-11-14",
+    "testsPassed": 129,
+    "retrievalCases": 60,
+    "recallAt30": 1,
+    "benchmarkSizes": [
+      1000,
+      10000
+    ],
+    "candidateCap": 30,
+    "limitation": "Offline test doubles do not prove live model selection or real Gmail workflow success. Single backend process."
+  },
+  "add": [
+    {
+      "tempId": "board-title",
+      "type": "text",
+      "x": 40,
+      "y": 30,
+      "width": 2200,
+      "text": "Agent overload: the solutions",
+      "fontSize": 52,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "board-subtitle",
+      "type": "text",
+      "x": 42,
+      "y": 101,
+      "width": 2160,
+      "text": "Interview walkthrough  |  One fix per card  |  Add new solutions within each category",
+      "fontSize": 23,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "problem-banner",
+      "type": "rectangle",
+      "x": 40,
+      "y": 163,
+      "width": 2200,
+      "height": 112,
+      "backgroundColor": "#f8f9fa",
+      "strokeColor": "#ced4da",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "problem-label",
+      "type": "text",
+      "x": 64,
+      "y": 180,
+      "width": 300,
+      "text": "THE PROBLEM",
+      "fontSize": 16,
+      "fontFamily": 7,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "problem-copy",
+      "type": "text",
+      "x": 64,
+      "y": 207,
+      "width": 2130,
+      "text": "As saved tasks and histories grow, the model sees more irrelevant context and too much work can run at once.\nWe bound what the model sees, what each worker remembers, and how much work runs.",
+      "fontSize": 23,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "find-panel",
+      "type": "rectangle",
+      "x": 40,
+      "y": 310,
+      "width": 700,
+      "height": 1710,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0.7,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "find-icon",
+      "type": "ellipse",
+      "x": 64,
+      "y": 333,
+      "width": 25,
+      "height": 25,
+      "backgroundColor": "transparent",
+      "strokeColor": "#6741d9",
+      "strokeWidth": 3
+    },
+    {
+      "type": "line",
+      "x": 85,
+      "y": 354,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          12,
+          12
+        ]
+      ],
+      "strokeColor": "#6741d9",
+      "strokeWidth": 3
+    },
+    {
+      "tempId": "find-heading",
+      "type": "text",
+      "x": 112,
+      "y": 329,
+      "width": 595,
+      "text": "Find and reuse work",
+      "fontSize": 30,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "find-caption",
+      "type": "text",
+      "x": 64,
+      "y": 372,
+      "width": 652,
+      "text": "Keep discovery relevant as saved tasks grow.",
+      "fontSize": 17,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "solution-01-box",
+      "type": "rectangle",
+      "x": 64,
+      "y": 400,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-number",
+      "type": "rectangle",
+      "x": 84,
+      "y": 418,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-01"
+      ],
+      "label": {
+        "text": "01",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#6741d9"
+      }
+    },
+    {
+      "tempId": "solution-01-title",
+      "type": "text",
+      "x": 136,
+      "y": 420,
+      "width": 555,
+      "text": "Search instead of loading the roster",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-problem-label",
+      "type": "text",
+      "x": 86,
+      "y": 472,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-problem",
+      "type": "text",
+      "x": 86,
+      "y": 494,
+      "width": 608,
+      "text": "Every request carried all saved agent names.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-change-label",
+      "type": "text",
+      "x": 86,
+      "y": 556,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-change",
+      "type": "text",
+      "x": 86,
+      "y": 578,
+      "width": 608,
+      "text": "Use saved task links, or keyword + semantic search.\nShow at most 30 compact candidates, 10 at a time.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-benefit-label",
+      "type": "text",
+      "x": 86,
+      "y": 666,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-01-benefit",
+      "type": "text",
+      "x": 86,
+      "y": 688,
+      "width": 608,
+      "text": "The model sees relevant work; the full directory\nstays in storage.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-01"
+      ]
+    },
+    {
+      "tempId": "solution-02-box",
+      "type": "rectangle",
+      "x": 64,
+      "y": 790,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-number",
+      "type": "rectangle",
+      "x": 84,
+      "y": 808,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-02"
+      ],
+      "label": {
+        "text": "02",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#6741d9"
+      }
+    },
+    {
+      "tempId": "solution-02-title",
+      "type": "text",
+      "x": 136,
+      "y": 810,
+      "width": 555,
+      "text": "Check identity before continuing",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-problem-label",
+      "type": "text",
+      "x": 86,
+      "y": 862,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-problem",
+      "type": "text",
+      "x": 86,
+      "y": 884,
+      "width": 608,
+      "text": "Similar tasks can involve the same person.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-change-label",
+      "type": "text",
+      "x": 86,
+      "y": 946,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-change",
+      "type": "text",
+      "x": 86,
+      "y": 968,
+      "width": 608,
+      "text": "Inspect the current saved record and stable task ID.\nReject conflicting confirmed invoice or case IDs.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-benefit-label",
+      "type": "text",
+      "x": 86,
+      "y": 1056,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-02-benefit",
+      "type": "text",
+      "x": 86,
+      "y": 1078,
+      "width": 608,
+      "text": "Avoid continuing the wrong task. Example: the same\nsender's INV-1042 and INV-1043 are different tasks.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-02"
+      ]
+    },
+    {
+      "tempId": "solution-03-box",
+      "type": "rectangle",
+      "x": 64,
+      "y": 1180,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-number",
+      "type": "rectangle",
+      "x": 84,
+      "y": 1198,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-03"
+      ],
+      "label": {
+        "text": "03",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#6741d9"
+      }
+    },
+    {
+      "tempId": "solution-03-title",
+      "type": "text",
+      "x": 136,
+      "y": 1200,
+      "width": 555,
+      "text": "Reuse work before creating more",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-problem-label",
+      "type": "text",
+      "x": 86,
+      "y": 1252,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-problem",
+      "type": "text",
+      "x": 86,
+      "y": 1274,
+      "width": 608,
+      "text": "New agents can duplicate an existing task\nand split its history.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-change-label",
+      "type": "text",
+      "x": 86,
+      "y": 1336,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-change",
+      "type": "text",
+      "x": 86,
+      "y": 1358,
+      "width": 608,
+      "text": "Search active and archived work before creation.\nContinue a verified match under its existing ID.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-benefit-label",
+      "type": "text",
+      "x": 86,
+      "y": 1446,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "solution-03-benefit",
+      "type": "text",
+      "x": 86,
+      "y": 1468,
+      "width": 608,
+      "text": "Keep one task's history together and reduce\nduplicate agents.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-03"
+      ]
+    },
+    {
+      "tempId": "find-template-box",
+      "type": "rectangle",
+      "x": 64,
+      "y": 1570,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#6741d9",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "strokeStyle": "dashed",
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-title",
+      "type": "text",
+      "x": 86,
+      "y": 1590,
+      "width": 608,
+      "text": "Add another solution",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-problem-label",
+      "type": "text",
+      "x": 86,
+      "y": 1642,
+      "width": 608,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-problem",
+      "type": "text",
+      "x": 86,
+      "y": 1664,
+      "width": 608,
+      "text": "[What grows, breaks, or becomes difficult?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-change-label",
+      "type": "text",
+      "x": 86,
+      "y": 1714,
+      "width": 608,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-change",
+      "type": "text",
+      "x": 86,
+      "y": 1736,
+      "width": 608,
+      "text": "[What did we change? Add the relevant limit.]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-benefit-label",
+      "type": "text",
+      "x": 86,
+      "y": 1802,
+      "width": 608,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-benefit",
+      "type": "text",
+      "x": 86,
+      "y": 1824,
+      "width": 608,
+      "text": "[What becomes better, and why?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "find-template-instruction",
+      "type": "text",
+      "x": 86,
+      "y": 1877,
+      "width": 608,
+      "text": "Duplicate this grouped card; extend the category downward.",
+      "fontSize": 15,
+      "fontFamily": 6,
+      "strokeColor": "#6741d9",
+      "autoResize": false,
+      "groupIds": [
+        "find-template"
+      ]
+    },
+    {
+      "tempId": "memory-panel",
+      "type": "rectangle",
+      "x": 790,
+      "y": 310,
+      "width": 700,
+      "height": 1710,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0.7,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "memory-icon-0",
+      "type": "rectangle",
+      "x": 812,
+      "y": 331,
+      "width": 32,
+      "height": 6,
+      "backgroundColor": "#1971c2",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "memory-icon-1",
+      "type": "rectangle",
+      "x": 812,
+      "y": 341,
+      "width": 32,
+      "height": 6,
+      "backgroundColor": "#1971c2",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "memory-icon-2",
+      "type": "rectangle",
+      "x": 812,
+      "y": 351,
+      "width": 32,
+      "height": 6,
+      "backgroundColor": "#1971c2",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 0,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "memory-heading",
+      "type": "text",
+      "x": 862,
+      "y": 329,
+      "width": 595,
+      "text": "Keep context useful",
+      "fontSize": 30,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "memory-caption",
+      "type": "text",
+      "x": 814,
+      "y": 372,
+      "width": 652,
+      "text": "Small prompts, with original details still available.",
+      "fontSize": 17,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "solution-04-box",
+      "type": "rectangle",
+      "x": 814,
+      "y": 400,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-number",
+      "type": "rectangle",
+      "x": 834,
+      "y": 418,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-04"
+      ],
+      "label": {
+        "text": "04",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#1971c2"
+      }
+    },
+    {
+      "tempId": "solution-04-title",
+      "type": "text",
+      "x": 886,
+      "y": 420,
+      "width": 555,
+      "text": "Bound the conversation context",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-problem-label",
+      "type": "text",
+      "x": 836,
+      "y": 472,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-problem",
+      "type": "text",
+      "x": 836,
+      "y": 494,
+      "width": 608,
+      "text": "The shared chat grows with every interaction.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-change-label",
+      "type": "text",
+      "x": 836,
+      "y": 556,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-change",
+      "type": "text",
+      "x": 836,
+      "y": 578,
+      "width": 608,
+      "text": "Give the Interaction Agent budgeted conversation\nmemory and recent saved task links.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-benefit-label",
+      "type": "text",
+      "x": 836,
+      "y": 666,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-04-benefit",
+      "type": "text",
+      "x": 836,
+      "y": 688,
+      "width": 608,
+      "text": "Keep the chat context manageable while retaining\nlinks for requests such as 'continue that task'.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-04"
+      ]
+    },
+    {
+      "tempId": "solution-05-box",
+      "type": "rectangle",
+      "x": 814,
+      "y": 790,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-number",
+      "type": "rectangle",
+      "x": 834,
+      "y": 808,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-05"
+      ],
+      "label": {
+        "text": "05",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#1971c2"
+      }
+    },
+    {
+      "tempId": "solution-05-title",
+      "type": "text",
+      "x": 886,
+      "y": 810,
+      "width": 555,
+      "text": "Load a compact task memory",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-problem-label",
+      "type": "text",
+      "x": 836,
+      "y": 862,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-problem",
+      "type": "text",
+      "x": 836,
+      "y": 884,
+      "width": 608,
+      "text": "A long-running task builds up more history\nthan its worker needs on every run.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-change-label",
+      "type": "text",
+      "x": 836,
+      "y": 946,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-change",
+      "type": "text",
+      "x": 836,
+      "y": 968,
+      "width": 608,
+      "text": "Load structured task state, a summary of earlier\nwork, and recent history within a fixed budget.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-benefit-label",
+      "type": "text",
+      "x": 836,
+      "y": 1056,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-05-benefit",
+      "type": "text",
+      "x": 836,
+      "y": 1078,
+      "width": 608,
+      "text": "Keep working context bounded as task history grows.\nToken counts are estimates with a safety margin.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-05"
+      ]
+    },
+    {
+      "tempId": "solution-06-box",
+      "type": "rectangle",
+      "x": 814,
+      "y": 1180,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-number",
+      "type": "rectangle",
+      "x": 834,
+      "y": 1198,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-06"
+      ],
+      "label": {
+        "text": "06",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#1971c2"
+      }
+    },
+    {
+      "tempId": "solution-06-title",
+      "type": "text",
+      "x": 886,
+      "y": 1200,
+      "width": 555,
+      "text": "Retrieve exact details on demand",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-problem-label",
+      "type": "text",
+      "x": 836,
+      "y": 1252,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-problem",
+      "type": "text",
+      "x": 836,
+      "y": 1274,
+      "width": 608,
+      "text": "A summary may omit an exact amount,\nrecipient, or instruction.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-change-label",
+      "type": "text",
+      "x": 836,
+      "y": 1336,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-change",
+      "type": "text",
+      "x": 836,
+      "y": 1358,
+      "width": 608,
+      "text": "Preserve new tool results as full source records.\nRetrieve original events or large-result excerpts.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-benefit-label",
+      "type": "text",
+      "x": 836,
+      "y": 1446,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "solution-06-benefit",
+      "type": "text",
+      "x": 836,
+      "y": 1468,
+      "width": 608,
+      "text": "Check exact details without putting every original\nrecord into the prompt.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-06"
+      ]
+    },
+    {
+      "tempId": "memory-template-box",
+      "type": "rectangle",
+      "x": 814,
+      "y": 1570,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "strokeStyle": "dashed",
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-title",
+      "type": "text",
+      "x": 836,
+      "y": 1590,
+      "width": 608,
+      "text": "Add another solution",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-problem-label",
+      "type": "text",
+      "x": 836,
+      "y": 1642,
+      "width": 608,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-problem",
+      "type": "text",
+      "x": 836,
+      "y": 1664,
+      "width": 608,
+      "text": "[What grows, breaks, or becomes difficult?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-change-label",
+      "type": "text",
+      "x": 836,
+      "y": 1714,
+      "width": 608,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-change",
+      "type": "text",
+      "x": 836,
+      "y": 1736,
+      "width": 608,
+      "text": "[What did we change? Add the relevant limit.]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-benefit-label",
+      "type": "text",
+      "x": 836,
+      "y": 1802,
+      "width": 608,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-benefit",
+      "type": "text",
+      "x": 836,
+      "y": 1824,
+      "width": 608,
+      "text": "[What becomes better, and why?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "memory-template-instruction",
+      "type": "text",
+      "x": 836,
+      "y": 1877,
+      "width": 608,
+      "text": "Duplicate this grouped card; extend the category downward.",
+      "fontSize": 15,
+      "fontFamily": 6,
+      "strokeColor": "#1971c2",
+      "autoResize": false,
+      "groupIds": [
+        "memory-template"
+      ]
+    },
+    {
+      "tempId": "run-panel",
+      "type": "rectangle",
+      "x": 1540,
+      "y": 310,
+      "width": 700,
+      "height": 2100,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roughness": 0.7,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "run-icon-0",
+      "type": "rectangle",
+      "x": 1562,
+      "y": 332,
+      "width": 17,
+      "height": 17,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "run-icon-1",
+      "type": "rectangle",
+      "x": 1572,
+      "y": 340,
+      "width": 17,
+      "height": 17,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "run-icon-2",
+      "type": "rectangle",
+      "x": 1582,
+      "y": 348,
+      "width": 17,
+      "height": 17,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      }
+    },
+    {
+      "tempId": "run-heading",
+      "type": "text",
+      "x": 1612,
+      "y": 329,
+      "width": 595,
+      "text": "Run and maintain work",
+      "fontSize": 30,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "run-caption",
+      "type": "text",
+      "x": 1564,
+      "y": 372,
+      "width": 652,
+      "text": "Bound execution and preserve task continuity.",
+      "fontSize": 17,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    },
+    {
+      "tempId": "solution-07-box",
+      "type": "rectangle",
+      "x": 1564,
+      "y": 400,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-number",
+      "type": "rectangle",
+      "x": 1584,
+      "y": 418,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-07"
+      ],
+      "label": {
+        "text": "07",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#099268"
+      }
+    },
+    {
+      "tempId": "solution-07-title",
+      "type": "text",
+      "x": 1636,
+      "y": 420,
+      "width": 555,
+      "text": "Put all executions in one queue",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-problem-label",
+      "type": "text",
+      "x": 1586,
+      "y": 472,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-problem",
+      "type": "text",
+      "x": 1586,
+      "y": 494,
+      "width": 608,
+      "text": "Unrestricted starts can overload resources\nor update the same task at the same time.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-change-label",
+      "type": "text",
+      "x": 1586,
+      "y": 556,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-change",
+      "type": "text",
+      "x": 1586,
+      "y": 578,
+      "width": 608,
+      "text": "Chat and triggers share a persistent queue:\n4 running, 100 waiting, at most 1 run per task.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-benefit-label",
+      "type": "text",
+      "x": 1586,
+      "y": 666,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-07-benefit",
+      "type": "text",
+      "x": 1586,
+      "y": 688,
+      "width": 608,
+      "text": "Bound active work and prevent concurrent\nupdates to the same saved task.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-07"
+      ]
+    },
+    {
+      "tempId": "solution-08-box",
+      "type": "rectangle",
+      "x": 1564,
+      "y": 790,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-number",
+      "type": "rectangle",
+      "x": 1584,
+      "y": 808,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-08"
+      ],
+      "label": {
+        "text": "08",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#099268"
+      }
+    },
+    {
+      "tempId": "solution-08-title",
+      "type": "text",
+      "x": 1636,
+      "y": 810,
+      "width": 555,
+      "text": "Limit stalls and recover safely",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-problem-label",
+      "type": "text",
+      "x": 1586,
+      "y": 862,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-problem",
+      "type": "text",
+      "x": 1586,
+      "y": 884,
+      "width": 608,
+      "text": "Stalled jobs hold resources; a restart or retry\ncan leave work uncertain.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-change-label",
+      "type": "text",
+      "x": 1586,
+      "y": 946,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-change",
+      "type": "text",
+      "x": 1586,
+      "y": 968,
+      "width": 608,
+      "text": "300-second run deadline; resume unexpired queued\njobs. Allow 1 automatic safe read-only retry per request.\nWrites or unknown tools require review if interrupted.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-benefit-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1056,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-08-benefit",
+      "type": "text",
+      "x": 1586,
+      "y": 1078,
+      "width": 608,
+      "text": "Release stuck workers and preserve recovery options\nwithout blindly repeating an uncertain action.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-08"
+      ]
+    },
+    {
+      "tempId": "solution-09-box",
+      "type": "rectangle",
+      "x": 1564,
+      "y": 1180,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-number",
+      "type": "rectangle",
+      "x": 1584,
+      "y": 1198,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-09"
+      ],
+      "label": {
+        "text": "09",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#099268"
+      }
+    },
+    {
+      "tempId": "solution-09-title",
+      "type": "text",
+      "x": 1636,
+      "y": 1200,
+      "width": 555,
+      "text": "Return related results together",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-problem-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1252,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-problem",
+      "type": "text",
+      "x": 1586,
+      "y": 1274,
+      "width": 608,
+      "text": "Parallel jobs finish at different times,\ncreating fragmented follow-up handling.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-change-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1336,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-change",
+      "type": "text",
+      "x": 1586,
+      "y": 1358,
+      "width": 608,
+      "text": "Save each request's result group. Deliver it after\nthe group is sealed and every job is terminal,\nincluding failed or rejected jobs.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-benefit-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1446,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-09-benefit",
+      "type": "text",
+      "x": 1586,
+      "y": 1468,
+      "width": 608,
+      "text": "Handle related outcomes together. Defaults also\ncap follow-up stages at 5 and submissions at 20.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-09"
+      ]
+    },
+    {
+      "tempId": "solution-10-box",
+      "type": "rectangle",
+      "x": 1564,
+      "y": 1570,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-number",
+      "type": "rectangle",
+      "x": 1584,
+      "y": 1588,
+      "width": 38,
+      "height": 34,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 0,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "solution-10"
+      ],
+      "label": {
+        "text": "10",
+        "fontSize": 16,
+        "fontFamily": 6,
+        "strokeColor": "#099268"
+      }
+    },
+    {
+      "tempId": "solution-10-title",
+      "type": "text",
+      "x": 1636,
+      "y": 1590,
+      "width": 555,
+      "text": "Archive completed work safely",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-problem-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1642,
+      "width": 600,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-problem",
+      "type": "text",
+      "x": 1586,
+      "y": 1664,
+      "width": 608,
+      "text": "Completed tasks accumulate, but being inactive\ndoes not mean a task is finished.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-change-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1726,
+      "width": 600,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-change",
+      "type": "text",
+      "x": 1586,
+      "y": 1748,
+      "width": 608,
+      "text": "Archive explicitly completed tasks after 30 inactive\ndays. Pending work, approvals and active triggers\nprevent automatic archival.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-benefit-label",
+      "type": "text",
+      "x": 1586,
+      "y": 1836,
+      "width": 600,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "solution-10-benefit",
+      "type": "text",
+      "x": 1586,
+      "y": 1858,
+      "width": 608,
+      "text": "Reduce active-list clutter. Archived tasks stay\nsearchable and can be reopened for continuation.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "solution-10"
+      ]
+    },
+    {
+      "tempId": "run-template-box",
+      "type": "rectangle",
+      "x": 1564,
+      "y": 1960,
+      "width": 652,
+      "height": 350,
+      "backgroundColor": "#e6fcf5",
+      "strokeColor": "#099268",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "strokeStyle": "dashed",
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-title",
+      "type": "text",
+      "x": 1586,
+      "y": 1980,
+      "width": 608,
+      "text": "Add another solution",
+      "fontSize": 24,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-problem-label",
+      "type": "text",
+      "x": 1586,
+      "y": 2032,
+      "width": 608,
+      "text": "PROBLEM",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-problem",
+      "type": "text",
+      "x": 1586,
+      "y": 2054,
+      "width": 608,
+      "text": "[What grows, breaks, or becomes difficult?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-change-label",
+      "type": "text",
+      "x": 1586,
+      "y": 2104,
+      "width": 608,
+      "text": "OUR CHANGE",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-change",
+      "type": "text",
+      "x": 1586,
+      "y": 2126,
+      "width": 608,
+      "text": "[What did we change? Add the relevant limit.]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-benefit-label",
+      "type": "text",
+      "x": 1586,
+      "y": 2192,
+      "width": 608,
+      "text": "WHY IT HELPS",
+      "fontSize": 13,
+      "fontFamily": 7,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-benefit",
+      "type": "text",
+      "x": 1586,
+      "y": 2214,
+      "width": 608,
+      "text": "[What becomes better, and why?]",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "run-template-instruction",
+      "type": "text",
+      "x": 1586,
+      "y": 2267,
+      "width": 608,
+      "text": "Duplicate this grouped card; extend the category downward.",
+      "fontSize": 15,
+      "fontFamily": 6,
+      "strokeColor": "#099268",
+      "autoResize": false,
+      "groupIds": [
+        "run-template"
+      ]
+    },
+    {
+      "tempId": "evidence-box",
+      "type": "rectangle",
+      "x": 40,
+      "y": 2055,
+      "width": 1450,
+      "height": 355,
+      "backgroundColor": "#f8f9fa",
+      "strokeColor": "#495057",
+      "fillStyle": "solid",
+      "strokeWidth": 1.5,
+      "roughness": 1,
+      "roundness": {
+        "type": 3
+      },
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-title",
+      "type": "text",
+      "x": 64,
+      "y": 2075,
+      "width": 1390,
+      "text": "Evidence and practical limits",
+      "fontSize": 28,
+      "fontFamily": 7,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-caption",
+      "type": "text",
+      "x": 64,
+      "y": 2117,
+      "width": 1390,
+      "text": "Recorded offline results · November 14, 2026 · Tests were not rerun for this board",
+      "fontSize": 16,
+      "fontFamily": 6,
+      "strokeColor": "#495057",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-results-heading",
+      "type": "text",
+      "x": 64,
+      "y": 2163,
+      "width": 660,
+      "text": "WHAT THE CHECKS SHOW",
+      "fontSize": 15,
+      "fontFamily": 7,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-results",
+      "type": "text",
+      "x": 64,
+      "y": 2196,
+      "width": 660,
+      "text": "129 automated tests passed.\n100% recall@30 across 60 labeled retrieval cases.\nNo identity-conflict or ambiguity-guard failures.\nCandidate pool stayed at 30 with 1,000 and\n10,000 saved agents.",
+      "fontSize": 20,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-limits-heading",
+      "type": "text",
+      "x": 790,
+      "y": 2163,
+      "width": 660,
+      "text": "WHAT STILL NEEDS VALIDATION",
+      "fontSize": 15,
+      "fontFamily": 7,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "evidence-limits",
+      "type": "text",
+      "x": 790,
+      "y": 2196,
+      "width": 660,
+      "text": "Offline embeddings and model/Gmail behavior are test doubles.\nCandidate recall does not prove the live model chooses\ncorrectly or that real Gmail tasks succeed.\nLive end-to-end testing is still needed.\nThis implementation supports one backend process.",
+      "fontSize": 20,
+      "fontFamily": 6,
+      "strokeColor": "#1e1e1e",
+      "autoResize": false,
+      "groupIds": [
+        "evidence"
+      ]
+    },
+    {
+      "tempId": "board-footer",
+      "type": "text",
+      "x": 42,
+      "y": 2450,
+      "width": 2170,
+      "text": "Numbers are configurable defaults. The sequence diagram explains the message flow; this board explains the decisions.",
+      "fontSize": 19,
+      "fontFamily": 6,
+      "strokeColor": "#343a40",
+      "autoResize": false,
+      "groupIds": []
+    }
+  ]
+}

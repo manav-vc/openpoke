@@ -71,6 +71,9 @@ async def _call_openrouter(prompt: SummaryPrompt, model: str, api_key: Optional[
 
 
 async def summarize_conversation() -> bool:
+    from ...execution.registry import get_registry
+    registry = get_registry()
+    generation = registry.generation
     settings = get_settings()
     if not settings.summarization_enabled:
         return False
@@ -120,7 +123,8 @@ async def summarize_conversation() -> bool:
         unsummarized_entries=remaining_entries,
     )
 
-    working_memory_log.write_summary_state(new_state)
+    with registry.connect(generation=generation):
+        working_memory_log.write_summary_state(new_state)
 
     logger.info(
         "conversation summarization completed",

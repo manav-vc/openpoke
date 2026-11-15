@@ -6,8 +6,6 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Set
 
-from ..agents.execution_agent.batch_manager import ExecutionBatchManager
-from ..agents.execution_agent.runtime import ExecutionResult
 from ..logging_config import logger
 from .triggers import TriggerRecord, get_trigger_service
 
@@ -66,6 +64,7 @@ class TriggerScheduler:
             logger.exception("Trigger scheduler loop crashed", extra={"error": str(exc)})
 
     async def _poll_once(self) -> None:
+        await self._reconcile_outcomes()
         now = _utc_now()
         due_triggers = self._service.get_due_triggers(before=now)
         if not due_triggers:
@@ -74,10 +73,11 @@ class TriggerScheduler:
         for trigger in due_triggers:
             if trigger.id in self._in_flight:
                 continue
-            self._in_flight.add(trigger.id)
-            asyncio.create_task(self._execute_trigger(trigger), name=f"trigger-{trigger.id}")
+            await self._execute_trigger(trigger)
 
     async def _execute_trigger(self, trigger: TriggerRecord) -> None:
+        from .execution.queue import get_execution_service
+        from .execution.registry import get_registry
         try:
             fired_at = _utc_now()
             instructions = self._format_instructions(trigger, fired_at)
@@ -89,16 +89,18 @@ class TriggerScheduler:
                     "scheduled_for": trigger.next_trigger,
                 },
             )
-            execution_manager = ExecutionBatchManager()
-            result = await execution_manager.execute_agent(
-                trigger.agent_name,
-                instructions,
-            )
-            if result.success:
-                self._handle_success(trigger, fired_at)
-            else:
-                error_text = result.error or result.response
-                self._handle_failure(trigger, fired_at, error_text)
+            registry = get_registry()
+            agent_id = trigger.agent_id or registry.resolve_alias(trigger.agent_name)
+            if not agent_id:
+                raise ValueError("Reminder owner could not be resolved to a saved task")
+            queue = get_execution_service()
+            scheduled = trigger.next_trigger or _isoformat(fired_at)
+            occurrence = f"trigger:{registry.generation}:{trigger.id}:{scheduled}"
+            batch = queue.create_batch(occurrence, context={"trigger_id": trigger.id, "generation": registry.generation})
+            await queue.submit(agent_id, instructions, batch_id=batch["id"], request_id=occurrence,
+                operation_key=occurrence, trigger={"id": trigger.id, "scheduled_for": scheduled,
+                    "agent_name": trigger.agent_name, "recurrence_rule": trigger.recurrence_rule})
+            await queue.seal_batch(batch["id"])
         except Exception as exc:  # pragma: no cover - defensive
             self._handle_failure(trigger, _utc_now(), str(exc))
             logger.exception(
@@ -107,6 +109,70 @@ class TriggerScheduler:
             )
         finally:
             self._in_flight.discard(trigger.id)
+
+    async def _reconcile_outcomes(self) -> None:
+        """Idempotently project committed occurrence outcomes into triggers.db."""
+        from .execution.queue import get_execution_service
+        from .execution.registry import get_registry
+        queue = get_execution_service()
+        registry = get_registry()
+        for job in queue.trigger_outcomes():
+            if job["generation"] != registry.generation:
+                continue
+            metadata = job["trigger"]
+            trigger = self._service._store.fetch_one(metadata["id"], metadata["agent_name"])
+            if trigger is None:
+                queue.mark_trigger_projected(job["id"])
+                continue
+            # A paused/rescheduled trigger must not be overwritten by an old job.
+            if trigger.next_trigger != metadata["scheduled_for"] or trigger.status != "active":
+                if job["status"] == "succeeded":
+                    self._finalize_goal_after_trigger(job, registry)
+                queue.mark_trigger_projected(job["id"])
+                continue
+            fired_at = datetime.fromtimestamp(job["completed_at"], UTC)
+            if job["status"] == "succeeded":
+                self._handle_success(trigger, fired_at)
+            elif job["status"] == "interrupted":
+                error = "Interrupted occurrence requires review; it will not be repeated automatically"
+                self._service.record_failure(trigger, error)
+                if trigger.recurrence_rule:
+                    self._service.schedule_next_occurrence(trigger, fired_at=fired_at)
+                    self._service.record_failure(trigger, error)
+                else:
+                    self._service.clear_next_fire(trigger.id, agent_name=trigger.agent_name)
+            else:
+                self._handle_failure(trigger, fired_at, job.get("error") or job["status"])
+            if job["status"] == "succeeded":
+                self._finalize_goal_after_trigger(job, registry)
+            queue.mark_trigger_projected(job["id"])
+
+    def _finalize_goal_after_trigger(self, job, registry):
+        import json
+        from .execution.registry import utc_now
+        with registry.connect(generation=job["generation"]) as conn:
+            event = conn.execute("SELECT payload,request_id FROM events WHERE agent_id=? AND kind='task_state' ORDER BY id DESC LIMIT 1",
+                                 (job["agent_id"],)).fetchone()
+            if not event:
+                return
+            if event["request_id"] != job["request_id"]:
+                return
+            state = json.loads(event[0])
+            if state.get("reported_state") != "completed" or state.get("reported_pending_work") is not False or state.get("approval_pending"):
+                return
+            if conn.execute("SELECT 1 FROM agent_references WHERE agent_id=? AND kind='enabled_trigger'", (job["agent_id"],)).fetchone():
+                return
+            if conn.execute("SELECT 1 FROM execution_jobs WHERE agent_id=? AND (status IN ('queued','running') OR (status='interrupted' AND review_resolution IS NULL))", (job["agent_id"],)).fetchone():
+                return
+            agent = conn.execute("SELECT state,version,approval_pending FROM agents WHERE id=?", (job["agent_id"],)).fetchone()
+            if not agent or agent["state"] != "waiting_for_trigger" or agent["approval_pending"]:
+                return
+        from .execution.registry import StaleAgentError
+        try:
+            registry.update_agent(job["agent_id"], expected_version=agent["version"], generation=job["generation"],
+                                  state="completed", pending_work=False, completed_at=utc_now())
+        except StaleAgentError:
+            pass
 
     def _handle_success(self, trigger: TriggerRecord, fired_at: datetime) -> None:
         logger.info(

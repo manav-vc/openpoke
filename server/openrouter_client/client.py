@@ -4,6 +4,7 @@ import json
 from typing import Any, Dict, List, Optional
 
 import httpx
+from ..logging_config import logger
 
 from ..config import get_settings
 
@@ -79,7 +80,9 @@ async def request_chat_completion(
                 response.raise_for_status()
             except httpx.HTTPStatusError as exc:
                 _handle_response_error(exc)
-            return response.json()
+            result = response.json()
+            logger.info("model usage", extra={"model": model, "usage": result.get("usage", {})})
+            return result
         except httpx.HTTPStatusError as exc:  # pragma: no cover - handled above
             _handle_response_error(exc)
         except httpx.HTTPError as exc:

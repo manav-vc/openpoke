@@ -12,6 +12,7 @@ class TriggerRecord(BaseModel):
 
     id: int
     agent_name: str
+    agent_id: Optional[str] = None
     payload: str
     start_time: Optional[str] = None
     next_trigger: Optional[str] = None

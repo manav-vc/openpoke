@@ -68,19 +68,15 @@ app.include_router(api_router)
 @app.on_event("startup")
 # Initialize background services (trigger scheduler and email watcher) when the app starts
 async def _start_trigger_scheduler() -> None:
-    scheduler = get_trigger_scheduler()
-    await scheduler.start()
-    watcher = get_important_email_watcher()
-    await watcher.start()
+    from .services.execution.lifecycle import start_all
+    await start_all()
 
 
 @app.on_event("shutdown")
 # Gracefully shutdown background services when the app stops
 async def _stop_trigger_scheduler() -> None:
-    scheduler = get_trigger_scheduler()
-    await scheduler.stop()
-    watcher = get_important_email_watcher()
-    await watcher.stop()
+    from .services.execution.lifecycle import stop_all
+    await stop_all()
 
 
 __all__ = ["app"]

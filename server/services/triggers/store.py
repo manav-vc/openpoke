@@ -57,15 +57,20 @@ class TriggerStore:
             conn.execute("PRAGMA journal_mode=WAL;")
             conn.execute(schema_sql)
             conn.execute(index_sql)
+            if "agent_id" not in {r[1] for r in conn.execute("PRAGMA table_info(triggers)")}:
+                conn.execute("ALTER TABLE triggers ADD COLUMN agent_id TEXT")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_triggers_agent_id ON triggers(agent_id)")
 
     def insert(self, payload: Dict[str, Any]) -> int:
-        with self._lock, self._connect() as conn:
+        from ..execution.context import generation_write_guard
+        with generation_write_guard(), self._lock, self._connect() as conn:
             columns = ", ".join(payload.keys())
             placeholders = ", ".join([":" + key for key in payload.keys()])
             sql = f"INSERT INTO triggers ({columns}) VALUES ({placeholders})"
             conn.execute(sql, payload)
             trigger_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-            return int(trigger_id)
+        self.sync_owner(payload["agent_name"])
+        return int(trigger_id)
 
     def fetch_one(self, trigger_id: int, agent_name: str) -> Optional[TriggerRecord]:
         with self._lock, self._connect() as conn:
@@ -76,6 +81,7 @@ class TriggerStore:
         return self._row_to_record(row) if row else None
 
     def update(self, trigger_id: int, agent_name: str, fields: Dict[str, Any]) -> bool:
+        from ..execution.context import generation_write_guard
         if not fields:
             return False
         assignments = ", ".join(f"{key} = :{key}" for key in fields.keys())
@@ -89,9 +95,37 @@ class TriggerStore:
             "trigger_id": trigger_id,
             "agent_name": agent_name,
         }
-        with self._lock, self._connect() as conn:
+        with generation_write_guard(), self._lock, self._connect() as conn:
             cursor = conn.execute(sql, payload)
-            return cursor.rowcount > 0
+            changed = cursor.rowcount > 0
+        self.sync_owner(agent_name)
+        return changed
+
+    def list_all(self) -> List[TriggerRecord]:
+        with self._lock, self._connect() as conn:
+            return [self._row_to_record(r) for r in conn.execute("SELECT * FROM triggers ORDER BY id")]
+
+    def sync_owner(self, agent_name: str) -> None:
+        from ..execution.registry import get_registry
+        from ..execution.context import execution_context, check_execution_generation
+        check_execution_generation()
+        current = execution_context.get()
+        registry = current[0] if current else get_registry()
+        generation = current[1] if current else registry.generation
+        agent_id = registry.resolve_alias(agent_name)
+        if not agent_id:
+            return
+        with registry.connect(write=True, generation=generation) as conn:
+            with self._lock, self._connect() as trigger_conn:
+                trigger_conn.execute("UPDATE triggers SET agent_id=? WHERE agent_name=?", (agent_id, agent_name))
+                enabled = {str(r[0]) for r in trigger_conn.execute("SELECT id FROM triggers WHERE agent_id=? AND status='active' AND next_trigger IS NOT NULL", (agent_id,))}
+            old = {r[0] for r in conn.execute("SELECT value FROM agent_references WHERE agent_id=? AND kind='enabled_trigger'", (agent_id,))}
+            if old == enabled:
+                return
+            conn.execute("DELETE FROM agent_references WHERE agent_id=? AND kind='enabled_trigger'", (agent_id,))
+            for value in enabled:
+                conn.execute("INSERT INTO agent_references(agent_id,kind,value,scope,confirmed) VALUES(?,'enabled_trigger',?,'',0)", (agent_id, value))
+            conn.execute("UPDATE agents SET version=version+1 WHERE id=?", (agent_id,))
 
     def list_for_agent(self, agent_name: str) -> List[TriggerRecord]:
         with self._lock, self._connect() as conn:

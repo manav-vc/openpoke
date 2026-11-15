@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from typing import Optional
+from fastapi import APIRouter, Header
 from fastapi.responses import JSONResponse
 
 from ..models import ChatHistoryClearResponse, ChatHistoryResponse, ChatRequest
@@ -11,8 +12,9 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 # Handle incoming chat messages and route them to the interaction agent
 async def chat_send(
     payload: ChatRequest,
+    idempotency_key: Optional[str] = Header(default=None, alias="Idempotency-Key"),
 ) -> JSONResponse:
-    return await handle_chat_request(payload)
+    return await handle_chat_request(payload, idempotency_key=idempotency_key)
 
 
 @router.get("/history", response_model=ChatHistoryResponse)
@@ -23,25 +25,9 @@ def chat_history() -> ChatHistoryResponse:
 
 
 @router.delete("/history", response_model=ChatHistoryClearResponse)
-def clear_history() -> ChatHistoryClearResponse:
-    from ..services import get_execution_agent_logs, get_agent_roster
-
-    # Clear conversation log
-    log = get_conversation_log()
-    log.clear()
-
-    # Clear execution agent logs
-    execution_logs = get_execution_agent_logs()
-    execution_logs.clear_all()
-
-    # Clear agent roster
-    roster = get_agent_roster()
-    roster.clear()
-
-    # Clear stored triggers
-    trigger_service = get_trigger_service()
-    trigger_service.clear_all()
-
+async def clear_history() -> ChatHistoryClearResponse:
+    from ..services.execution.lifecycle import reset_all
+    await reset_all()
     return ChatHistoryClearResponse()
 
 
