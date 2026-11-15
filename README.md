@@ -9,6 +9,8 @@ An [OpenPoke](https://github.com/shlokkhemani/OpenPoke) fork that addresses **ag
 | [Sequence diagram — Mermaid](https://mermaid.ai/d/d30bea16-7093-473f-971e-fea1f4a4dba9) | How requests move through agents, memory, and the queue. |
 | [Solution board — Excalidraw](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) | Each problem, our change, and why it helps. |
 
+Local copies: [Mermaid source](docs/diagrams/openpoke-overload-sequence.mmd), [editable Excalidraw board](docs/diagrams/openpoke-overload-solutions.excalidraw), and [board preview](docs/diagrams/openpoke-overload-solutions.png).
+
 The architecture at a glance:
 
 ```mermaid
