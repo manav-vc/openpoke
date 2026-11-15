@@ -6,8 +6,8 @@ An [OpenPoke](https://github.com/shlokkhemani/OpenPoke) fork that addresses **ag
 
 | Diagram | What it explains |
 | --- | --- |
-| [Sequence diagram — Mermaid](https://mermaid.ai/app/projects/44c7fd0d-9b55-480d-bb34-43eecd563669/diagrams/d30bea16-7093-473f-971e-fea1f4a4dba9/edit) | How requests move through agents, memory, and the queue. |
-| [Solution board — Excalidraw](https://app.excalidraw.com/s/2C1urTzZVM0/2hmrnSZUcZZ) | Each problem, our change, and why it helps. |
+| [Sequence diagram — Mermaid](https://mermaid.ai/d/d30bea16-7093-473f-971e-fea1f4a4dba9) | How requests move through agents, memory, and the queue. |
+| [Solution board — Excalidraw](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) | Each problem, our change, and why it helps. |
 
 The architecture at a glance:
 
