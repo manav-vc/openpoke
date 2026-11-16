@@ -4,27 +4,11 @@ An [OpenPoke](https://github.com/shlokkhemani/OpenPoke) fork that addresses **ag
 
 ## Architecture and diagrams
 
-| Diagram | What it explains |
-| --- | --- |
-| [Sequence diagram — Mermaid](https://mermaid.ai/d/d30bea16-7093-473f-971e-fea1f4a4dba9) | How requests move through agents, memory, and the queue. |
-| [Solution board — Excalidraw](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) | Each problem, our change, and why it helps. |
+[**Open the presentation diagram — Excalidraw**](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ)
 
-Local copies: [Mermaid source](docs/diagrams/openpoke-overload-sequence.mmd), [editable Excalidraw board](docs/diagrams/openpoke-overload-solutions.excalidraw), and [board preview](docs/diagrams/openpoke-overload-solutions.png).
+Select **Present** for the walkthrough of the problems, solutions, architecture, and before/after charts.
 
-The architecture at a glance:
-
-```mermaid
-flowchart LR
-    U[User] <--> I[Interaction Agent]
-    I <-->|Find and inspect EAs| R[(EA Registry and Search)]
-    I -->|Submit EA jobs| Q[Shared Persistent Queue]
-    T[Scheduled Triggers] --> Q
-    Q -->|Dispatch| E[Execution Agents]
-    E -->|Save outcomes| Q
-    E <-->|Load context and save records| M[(EA Execution Memory)]
-    E <--> G[Gmail and Task Tools]
-    Q -->|Grouped outcomes| I
-```
+For the detailed request flow, see the [Mermaid sequence diagram](https://mermaid.ai/d/d30bea16-7093-473f-971e-fea1f4a4dba9) or its [source](docs/diagrams/openpoke-overload-sequence.mmd).
 
 EA records, search data, execution memory, and the queue use SQLite. No separate vector database is needed.
 
