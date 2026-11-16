@@ -1,91 +1,158 @@
 ---
-title: OpenPoke — Agent Overload Optimization
-config:
-  theme: base
-  themeVariables:
-    fontFamily: Inter, Arial, sans-serif
-    fontSize: 14px
-    actorBkg: "#eff6ff"
-    actorBorder: "#93c5fd"
-    actorTextColor: "#1e293b"
-    actorLineColor: "#cbd5e1"
-    signalColor: "#475569"
-    signalTextColor: "#334155"
-    labelBoxBkgColor: "#f8fafc"
-    labelBoxBorderColor: "#cbd5e1"
-    labelTextColor: "#334155"
-    loopTextColor: "#334155"
-    noteBkgColor: "#fffbeb"
-    noteBorderColor: "#fcd34d"
-    noteTextColor: "#475569"
-  sequence:
-    mirrorActors: false
-    actorMargin: 24
-    width: 140
-    messageMargin: 30
-    noteMargin: 12
-    useMaxWidth: true
+title: OpenPoke Flow — Interaction Agent and Execution Agents
+config: {"theme":"base","themeVariables":{"fontFamily":"Arial, sans-serif","fontSize":"14px","primaryColor":"#f5f3ff","primaryTextColor":"#334155","primaryBorderColor":"#d8d1eb","lineColor":"#94a3b8","actorBkg":"#f5f3ff","actorBorder":"#ddd6fe","actorTextColor":"#1f2937","actorLineColor":"#94a3b8","signalColor":"#64748b","signalTextColor":"#334155","labelBoxBkgColor":"#dbeafe","labelBoxBorderColor":"#93c5fd","labelTextColor":"#3b82f6","loopTextColor":"#3b82f6","noteBkgColor":"#ffffff","noteBorderColor":"#e2e8f0","noteTextColor":"#475569","sequenceNumberColor":"#ffffff"},"sequence":{"mirrorActors":true,"actorMargin":48,"width":160,"height":60,"boxMargin":16,"boxTextMargin":12,"messageMargin":40,"noteMargin":24,"useMaxWidth":true,"wrap":true,"wrapPadding":24,"actorFontFamily":"Arial, sans-serif","actorFontWeight":700,"noteFontFamily":"Arial, sans-serif","noteFontSize":16,"noteFontWeight":600,"messageFontFamily":"Arial, sans-serif"}}
 ---
 sequenceDiagram
+    participant U as You<br/>User and Chat UI
+    participant A as Chat API<br/>and Lifecycle
+    participant I as Interaction<br/>Agent
+    participant R as Execution Agent<br/>Registry and Search
+    participant Q as Durable<br/>Execution Queue
+    participant E as Execution<br/>Agents
+    participant T as Tools<br/>Gmail and Triggers
+    participant K as Task<br/>Search Email
+    participant M as Memory<br/>Conversation and Agent Memory
+    participant B as Background Services<br/>Monitor, Scheduler, Maintenance
     autonumber
-    participant U as User
-    participant I as Interaction Agent
-    participant R as Task Registry<br/>and Search
-    participant Q as Shared Durable<br/>Queue
-    participant W as Execution<br/>Workers
-    participant S as Durable<br/>Memory
-    participant T as Gmail and<br/>Task Tools
-
-    Note over I,S: Optimization: retrieve relevant saved tasks, bound model history, and cap work in flight.<br/>Shown limits are configurable defaults for one backend process.
-
-    rect rgb(239, 246, 255)
-        Note over I,R: 1. Bound discovery instead of injecting the full agent roster
-        U->>I: Request work
-        alt Stable task ID or conversation link is known
-            I->>R: Resolve the saved task identity
-        else Discover a relevant saved task
-            I->>R: Search by keywords, meaning and identifiers
-            R-->>I: Up to 30 compact candidates, 10 per page
-        end
-        I->>R: Inspect task identity and current version
-        R-->>I: Verified stable ID, version and state
-        Note over I,R: Clarify ambiguous identities before dispatch.<br/>Create explicitly only after archive-inclusive discovery.
-    end
-
-    rect rgb(255, 247, 237)
-        Note over Q,W: 2. Bound execution through one shared chat and reminder queue
-        loop Each task submitted for this request
-            I->>Q: Enqueue inspected ID, version and instructions
-            alt Fewer than 100 waiting jobs
-                Q->>Q: Persist queued job and request-group membership
-            else Queue is full
-                Q->>Q: Persist rejected terminal outcome
-            end
-        end
-        I->>Q: Seal request group when submissions finish
-        Note over Q,W: Workers may start before sealing; sealing gates final delivery.<br/>At most 4 active jobs, one per task; start oldest runnable work.<br/>Expire after 5 minutes waiting; runtime timeout is 300 seconds.
-        loop Accepted jobs; up to 4 workers run in parallel
-            Q->>W: Claim job when a worker slot and task are free
-            W->>S: Load bounded task history
-            S-->>W: State, summary and recent complete exchanges<br/>within 8,000 estimated history tokens
-            loop At most 8 tool iterations
-                W->>S: Journal tool intent before effects
-                W->>T: Execute tool
-                T-->>W: Tool outcome
-                W->>S: Preserve full result or artifact
-                opt Exact older details are needed
-                    W->>S: Retrieve cited source or bounded excerpt
-                    S-->>W: Original evidence on demand
+    Note over I,E: The Interaction Agent talks to you and delegates work.<br/>Each Execution Agent is a saved owner of ongoing work.<br/>An execution is one queued run for that Execution Agent.
+    Note over E,K: Tools perform atomic operations.<br/>A Task is a complex operation, such as Search Email,<br/>that can use its own model loop and Gmail tools.
+    Note over R,M: Conversation Memory is the shared chat used by the Interaction Agent.<br/>Agent Memory belongs to one specific Execution Agent ID.<br/>SQLite journals are authoritative, chat logs are projections.<br/>Shown limits are configurable for one backend process.
+    rect rgb(250, 245, 255)
+        Note over U,B: 1. Accept the Request and Select Execution Agents
+        U->>A: Submit a chat request
+        A->>M: Save request and request ID for recovery<br/>after a backend restart
+        A-->>U: HTTP 202 accepted, Chat UI polls conversation history
+        A->>I: Process the accepted request asynchronously
+        I->>M: Read Conversation Memory and recent<br/>Execution Agent references
+        M-->>I: Summary and recent chat within 8,000 estimated tokens,<br/>plus up to 10 recent Execution Agent references
+        I->>M: Save the Conversation Memory snapshot<br/>with this request for recovery
+        alt Answer or clarify without delegating any work
+            I-->>U: Save and show a direct answer or clarifying question
+        else Delegate work within the user's authorization
+            I-->>U: Save and show an acknowledgement before execution finishes
+            loop Each delegated work item needs its own selected Execution Agent
+                alt Known Execution Agent ID or saved conversation link
+                    I->>R: Resolve that Execution Agent's saved identity
+                else Discover a suitable Execution Agent
+                    I->>R: Search Execution Agent records by keywords,<br/>meaning and identifying references
+                    Note over I,R: Filter by connected account, exclude confirmed ID conflicts.<br/>Retrieve up to 30 keyword and 30 semantic candidates.<br/>Semantic search uses OpenRouter embeddings.
+                    Note over I,R: Merge by Execution Agent ID using 1 / (60 + rank).<br/>Rank 1 scores more than rank 2, matches in both add scores.<br/>Exact identifying matches come first. Keep up to 30,<br/>show 10 per page. Keyword search survives embedding failure.
+                    R-->>I: Compact Execution Agent candidates<br/>and evidence of the work they own
+                end
+                alt Identity is ambiguous, conflicting or insufficiently established
+                    I-->>U: Save and show a request for a distinguishing reference
+                else Reuse a verified identity or create one after discovery
+                    opt No suitable Execution Agent after active and archive search
+                        I->>R: Create a saved Execution Agent record with a permanent ID
+                    end
+                    I->>R: Inspect this Execution Agent's identity, approvals,<br/>ongoing work status and current version
+                    R-->>I: Current Execution Agent details and source references
+                    I->>M: Journal the Interaction Agent's tool plan<br/>and stable operation key before submission
+                    I->>Q: Submit instructions with the inspected<br/>Execution Agent ID and expected version
+                    Q->>M: Persist this execution and current result-group membership
+                    Q-->>I: Queued or rejected execution, with its reason
                 end
             end
-            W-->>Q: Persist succeeded, failed or interrupted outcome
+            I->>Q: Seal this result group when the Interaction Agent turn finishes
         end
-        Note over Q,W: Restart resumes unexpired queued jobs.<br/>Safe read-only failures permit at most one automatic retry per request.<br/>Attempted writes or unknown tools require review; uncertain actions are not automatically replayed.
     end
-
+    rect rgb(219, 234, 254)
+        Note over U,B: 2. Process Submitted Executions and Their Results
+        Note over Q,E: Only submitted executions enter this section.<br/>Execution may start before its result group is sealed.<br/>Up to 100 concurrent executions, 100 queued executions,<br/>5-minute queue wait and 300-second execution timeout.<br/>At most one active execution per Execution Agent.
+        loop While a submitted result group still needs processing
+            loop Oldest runnable executions, up to 100 run concurrently
+                Q->>E: Start a run for the assigned Execution Agent ID,<br/>busy or review-blocked Execution Agents do not block others
+                E->>M: Load this Execution Agent's identity, ongoing work state<br/>and Agent Memory within 8,000 estimated tokens
+                M-->>E: Earlier-work summary, recent complete request segments<br/>and references to this Execution Agent's original sources
+                loop Up to 8 Execution Agent planning turns, until a final response or interruption
+                    loop Each tool call selected in this planning turn
+                        E->>M: Journal intent before each chosen tool call
+                        alt Atomic Gmail operation or Trigger operation
+                            E->>T: Execute the selected Gmail tool or Trigger tool
+                            T-->>E: Tool result or uncertain external outcome
+                        else Complex operation through the Search Email Task
+                            E->>K: Run the Search Email Task
+                            loop Up to 8 internal Search Email planning turns
+                                opt Search Email requests Gmail queries
+                                    K->>T: Run selected Gmail email-search queries
+                                    T-->>K: Email search results
+                                end
+                            end
+                            K->>K: Clean, deduplicate and select matching emails
+                            K-->>E: Aggregated and cleaned email results
+                        else Exact older evidence is needed
+                            E->>M: Read this Execution Agent's source events,<br/>query excerpts or source pages
+                            M-->>E: Bounded original evidence from its Agent Memory
+                        end
+                        E->>M: Preserve each full result, artifact or interruption evidence<br/>in this Execution Agent's Agent Memory
+                    end
+                end
+                opt Execution reaches a final response
+                    E->>R: Persist this Execution Agent's reported ongoing work state,<br/>pending draft approvals and active Triggers prevent completion
+                end
+                Note over E,T: An uncertain external write stops<br/>this execution immediately, before<br/>another tool call or model turn.
+                E-->>Q: Execution result: response, success flag or review requirement
+                Q->>M: Persist execution status and outcome,<br/>rejected and expired executions also count as terminal
+            end
+            Q->>I: Deliver this group's outcomes only after sealing<br/>and all its executions become terminal
+            alt Another authorized step is necessary and follow-up is permitted
+                I->>R: Repeat selection and current-version inspection<br/>from section 1 for every follow-up work item
+                I->>M: Journal the follow-up tool plan and stable operation keys
+                I->>Q: Submit follow-up executions in a new correlated result group
+                I->>Q: Seal the new result group when this interaction turn finishes
+                Note over I,Q: Reuse Execution Agent identities for continuing work.<br/>Reinspect if a version changes. Preserve user constraints.<br/>At most 5 follow-up stages and 20 total submissions<br/>per initiating request, rejected work cannot bypass limits.
+            else No further authorized step, or fresh user direction is required
+                I->>M: Save each reply or verbatim draft in Conversation Memory<br/>once using its stable event key
+                I-->>U: Show outcomes, exact draft or required review,<br/>ask for approval before sending a prepared email draft
+            end
+            Note over I,Q: Repeat only when a follow-up result group was created.<br/>Terminal means succeeded, failed, expired, interrupted or rejected.<br/>An execution's success does not complete its ongoing work.<br/>Multiple tool calls can occur within one planning turn.
+        end
+    end
+    rect rgb(255, 237, 213)
+        Note over U,B: 3. Independent Background Activity
+        Note over I,B: These services run independently of sections 1 and 2.<br/>An email notification is not new user authorization.
+        opt Email Monitor finds an important email
+            B->>I: Report the important-email summary
+            I-->>U: Save and show a relevant notification or suggested action
+        end
+        opt Trigger Scheduler finds a due Trigger
+            B->>Q: Submit instructions for the Execution Agent<br/>that owns this due Trigger, seal its result group
+            Note over Q,B: Deduplicate by Trigger ID, scheduled time and reset generation.<br/>Project saved outcomes into the Trigger schedule.<br/>Process submitted executions through section 2.
+        end
+        B->>R: Maintenance refreshes embeddings for changed<br/>Execution Agent searchable fields
+        B->>M: Maintenance summarizes completed Execution Agent request<br/>segments, separate summarization compacts Conversation Memory
+        Note over R,M: Retain original source records after summarization.<br/>New Execution Agent search fields queue background indexing.<br/>Incomplete or failed indexing keeps discovery visibly degraded.
+        B->>R: At startup and hourly, archive eligible Execution Agents<br/>completed and inactive for at least 30 days
+        Note over R,B: Pending work, approvals, active Triggers, queued or running<br/>executions and unresolved interruptions prevent archival.<br/>Archived Execution Agents stay searchable, an accepted<br/>continuation reopens the same saved identity.
+    end
     rect rgb(240, 253, 244)
-        Note over I,Q: 3. Consolidate results instead of sending one update per worker
-        Q-->>I: Deliver once group is sealed and all members are terminal
-        Note over I,Q: Rejected, expired, failed and interrupted jobs also count.
-        I-->>U: One grouped update with outcomes or required review
+        Note over U,B: 4. Backend Restart, Interrupted-Execution Review and History Reset
+        opt Backend starts after a restart
+            A->>Q: Classify previously running executions using<br/>their durable tool-effect journals before resuming work
+            alt Journal proves safe read-only work with no unresolved write risk
+                Q->>R: Leave the Execution Agent available,<br/>mark the lost execution failed and retryable
+            else A write, unknown tool or missing evidence leaves uncertainty
+                Q->>R: Mark the lost execution interrupted and its<br/>Execution Agent awaiting review, hold its queued follow-ups
+            end
+            Q->>Q: Expire overdue queued executions,<br/>resume only unexpired, eligible queued executions
+            A->>I: Recover pending interaction turns from saved tool plans
+            Note over I,Q: The Interaction Agent may submit one safe read-only retry<br/>per initiating request, subject to recorded retry eligibility.<br/>Never automatically repeat an uncertain external action.<br/>An uncertain write also stops a live execution immediately.
+        end
+        opt An interrupted execution requires explicit user resolution
+            U->>I: Identify the interrupted execution and choose<br/>completed, abandon or retry
+            I->>Q: Record the user's decision, retry creates a new execution,<br/>while completed or abandon releases eligible held work
+            Note over I,Q: A reviewed retry runs before held follow-ups.<br/>A failed retry can still require review of the original action.
+        end
+        opt User chooses Clear History in the Chat UI
+            U->>A: DELETE chat history through the backend API
+            A->>B: Stop Email Monitor and Trigger Scheduler
+            A->>I: Pause interaction admission and cancel pending interaction turns
+            A->>B: Stop maintenance and both memory-summarization workers
+            A->>Q: Stop submissions, drain executions for up to 30 seconds,<br/>then cancel remaining owned work
+            A->>M: Advance reset generation, clear saved requests, executions,<br/>Execution Agent records, both memories and Triggers
+            A->>I: Resume interaction admission under the new reset generation
+            A->>Q: Restart the empty execution queue
+            A->>B: Restart background services with the new reset generation
+            Note over A,M: Clearing history is a reset, not restart recovery.<br/>Old callbacks cannot recreate cleared local state.<br/>External actions already in flight cannot be undone.
+        end
     end

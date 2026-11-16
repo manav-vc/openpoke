@@ -95,7 +95,7 @@ class Settings(BaseModel):
     agent_token_safety_margin: float = Field(default=_env_float("OPENPOKE_AGENT_TOKEN_SAFETY_MARGIN", 1.15), ge=1.0)
     agent_maintenance_interval_seconds: int = Field(default=_env_int("OPENPOKE_AGENT_MAINTENANCE_INTERVAL_SECONDS", 3600), ge=1)
     agent_archive_days: int = Field(default=_env_int("OPENPOKE_AGENT_ARCHIVE_DAYS", 30), ge=1)
-    agent_max_concurrency: int = Field(default=_env_int("OPENPOKE_AGENT_MAX_CONCURRENCY", 4), ge=1)
+    agent_max_concurrency: int = Field(default=_env_int("OPENPOKE_AGENT_MAX_CONCURRENCY", 100), ge=1)
     agent_queue_capacity: int = Field(default=_env_int("OPENPOKE_AGENT_QUEUE_CAPACITY", 100), ge=1)
     agent_queue_wait_seconds: int = Field(default=_env_int("OPENPOKE_AGENT_QUEUE_WAIT_SECONDS", 300), ge=1)
     agent_execution_timeout_seconds: int = Field(default=_env_int("OPENPOKE_AGENT_EXECUTION_TIMEOUT_SECONDS", 300), ge=1)

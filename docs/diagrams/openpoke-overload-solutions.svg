@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3920" height="3400" viewBox="0 0 3920 3400" role="img" aria-labelledby="title desc">
+<title id="title">OpenPoke agent overload presentation — 11 slides</title>
+<desc id="desc">100 active executions globally, 100 waiting, one active per Execution Agent. Original sources are retained. Historical validation: latest 9/10, earlier 10/10; 100-worker runtime checks pending.</desc>
+<defs><marker id="arrow0" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#24324b" stroke-width="2"/></marker><marker id="arrow1" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#ddd6ef" stroke-width="2"/></marker><marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#7c3aed" stroke-width="2"/></marker><marker id="arrow3" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#64748b" stroke-width="2"/></marker><marker id="arrow4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#2563eb" stroke-width="2"/></marker><marker id="arrow5" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#16815d" stroke-width="2"/></marker><marker id="arrow6" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#c8cfde" stroke-width="2"/></marker><marker id="arrow7" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 8 5 L 1 9" fill="none" stroke="#b45335" stroke-width="2"/></marker><clipPath id="clip-op-1"><rect x="0" y="0" width="1280" height="820"/></clipPath><clipPath id="clip-op-1e"><rect x="1320" y="0" width="1280" height="820"/></clipPath><clipPath id="clip-op-1s"><rect x="2640" y="0" width="1280" height="820"/></clipPath><clipPath id="clip-op-28"><rect x="0" y="860" width="1280" height="820"/></clipPath><clipPath id="clip-op-2l"><rect x="1320" y="860" width="1280" height="820"/></clipPath><clipPath id="clip-op-35"><rect x="2640" y="860" width="1280" height="820"/></clipPath><clipPath id="clip-op-3h"><rect x="0" y="1720" width="1280" height="820"/></clipPath><clipPath id="clip-op-3v"><rect x="1320" y="1720" width="1280" height="820"/></clipPath><clipPath id="clip-op-48"><rect x="2640" y="1720" width="1280" height="820"/></clipPath><clipPath id="clip-op-4l"><rect x="0" y="2580" width="1280" height="820"/></clipPath><clipPath id="clip-op-4z"><rect x="1320" y="2580" width="1280" height="820"/></clipPath></defs>
+<g clip-path="url(#clip-op-1)" aria-label="01 · Agent overload: the architecture">
+<rect x="0" y="0" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="60" y="52.56">OPENPOKE  /  01</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="60" y="112.80000000000001">Agent overload: the architecture</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="60" y="154.24">Search relevant EAs, bound loaded memory, and control simultaneous executions.</tspan></text>
+<rect x="60" y="194" width="360" height="104" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="240" y="239.12">100</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="240" y="277.48">active executions globally</tspan></text>
+<rect x="460" y="194" width="360" height="104" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="640" y="239.12">100</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="640" y="277.48">waiting executions</tspan></text>
+<rect x="860" y="194" width="360" height="104" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="1040" y="239.12">1</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="1040" y="277.48">active execution per EA</tspan></text>
+<rect x="60" y="360" width="190" height="94" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="155" y="393.4">User</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="155" y="428.8">Chat UI</tspan></text>
+<rect x="335" y="360" width="240" height="94" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="455" y="393.4">Interaction Agent</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="455" y="428.8">Conversation + routing</tspan></text>
+<rect x="670" y="360" width="240" height="94" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="790" y="393.4">Durable queue</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="790" y="428.8">Chat + Triggers</tspan></text>
+<rect x="1000" y="360" width="220" height="94" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="1110" y="393.4">Execution Agent</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="1110" y="428.8">One queued run</tspan></text>
+<polyline points="250,407 335,407" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow4)"/>
+<polyline points="575,407 670,407" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow4)"/>
+<polyline points="910,407 1000,407" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow4)"/>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle"><tspan x="623" y="387.64">submit</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="17" font-weight="400" text-anchor="middle"><tspan x="955" y="387.64">claim</tspan></text>
+<rect x="335" y="565" width="240" height="94" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="455" y="598.4">Registry + search</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="455" y="633.8">Stable ID · inspect</tspan></text>
+<rect x="670" y="565" width="240" height="94" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="790" y="598.4">SQLite memory</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="790" y="633.8">Sources · state</tspan></text>
+<rect x="1000" y="565" width="220" height="94" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="1110" y="598.4">Tools + Tasks</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="15" font-weight="400" text-anchor="middle"><tspan x="1110" y="633.8">Gmail · Triggers</tspan></text>
+<polyline points="455,454 455,565" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow2)"/>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle"><tspan x="455" y="516.56">find / verify</tspan></text>
+<polyline points="790,454 790,565" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow2)"/>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle"><tspan x="790" y="516.56">journal</tspan></text>
+<polyline points="1110,454 1110,565" fill="none" stroke="#16815d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow5)"/>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle"><tspan x="1110" y="516.56">call / record</tspan></text>
+<polyline points="790,454 790,476 455,476 455,454" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7 6" marker-end="url(#arrow4)"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="middle"><tspan x="640" y="719.16">Grouped outcomes: sealed + every execution terminal</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="middle"><tspan x="640" y="767.4">One backend process · SQLite storage · Original sources retained</tspan></text>
+</g>
+<g clip-path="url(#clip-op-1e)" aria-label="02 · Three independent overload problems">
+<rect x="1320" y="0" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="1380" y="52.56">OPENPOKE  /  02</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="1380" y="112.80000000000001">Three independent overload problems</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="1380" y="154.24">Each limit addresses a different source of growth.</tspan></text>
+<rect x="1380" y="204" width="360" height="474" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1404" y="252.84">1  IA context</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1404" y="307.16">More saved EAs meant</tspan><tspan x="1404" y="337.52000000000004">more roster entries in</tspan><tspan x="1404" y="367.88000000000005">every prompt.</tspan><tspan x="1404" y="398.24"></tspan><tspan x="1404" y="428.6">Find relevant EAs</tspan><tspan x="1404" y="458.96000000000004">through links and</tspan><tspan x="1404" y="489.32000000000005">bounded search.</tspan></text>
+<rect x="1780" y="204" width="360" height="474" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1804" y="252.84">2  EA memory</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1804" y="307.16">More past exchanges</tspan><tspan x="1804" y="337.52000000000004">meant more loaded</tspan><tspan x="1804" y="367.88000000000005">history for each run.</tspan><tspan x="1804" y="398.24"></tspan><tspan x="1804" y="428.6">Budget history and</tspan><tspan x="1804" y="458.96000000000004">retrieve exact older</tspan><tspan x="1804" y="489.32000000000005">sources.</tspan></text>
+<rect x="2180" y="204" width="360" height="474" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2204" y="252.84">3  Executions</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2204" y="307.16">More incoming work</tspan><tspan x="2204" y="337.52000000000004">could start too many</tspan><tspan x="2204" y="367.88000000000005">runs at once.</tspan><tspan x="2204" y="398.24"></tspan><tspan x="2204" y="428.6">Use one queue with</tspan><tspan x="2204" y="458.96000000000004">global and per-EA</tspan><tspan x="2204" y="489.32000000000005">limits.</tspan></text>
+</g>
+<g clip-path="url(#clip-op-1s)" aria-label="03 · Find and reuse the right EA">
+<rect x="2640" y="0" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="2700" y="52.56">OPENPOKE  /  03</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="2700" y="112.80000000000001">Find and reuse the right EA</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="2700" y="154.24">Resolve links, search if needed, then inspect the current record.</tspan></text>
+<rect x="2700" y="204" width="360" height="380" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2724" y="252.84">1  Recent links</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2724" y="307.16">Resolve a stable EA ID</tspan><tspan x="2724" y="337.52000000000004">or a saved</tspan><tspan x="2724" y="367.88000000000005">conversation</tspan><tspan x="2724" y="398.24">reference.</tspan></text>
+<rect x="3100" y="204" width="360" height="380" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="3124" y="252.84">2  Hybrid search</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="3124" y="307.16">Up to 30 keyword + 30</tspan><tspan x="3124" y="337.52000000000004">semantic candidates.</tspan><tspan x="3124" y="367.88000000000005"></tspan><tspan x="3124" y="398.24">Merge IDs and ranks;</tspan><tspan x="3124" y="428.6">show 30 total, 10 per</tspan><tspan x="3124" y="458.96000000000004">page.</tspan></text>
+<rect x="3500" y="204" width="360" height="380" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="3524" y="252.84">3  Inspect</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="3524" y="307.16">Confirm identity and</tspan><tspan x="3524" y="337.52000000000004">version before</tspan><tspan x="3524" y="367.88000000000005">submitting.</tspan><tspan x="3524" y="398.24"></tspan><tspan x="3524" y="428.6">Search archived EAs</tspan><tspan x="3524" y="458.96000000000004">before creating</tspan><tspan x="3524" y="489.32000000000005">another.</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="25" font-weight="400" text-anchor="middle"><tspan x="3280" y="662">Conflicting confirmed invoice / case / task IDs exclude a match.</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle"><tspan x="3280" y="724.24">Ambiguous identity → clarify. Missing embeddings → show degraded discovery.</tspan></text>
+</g>
+<g clip-path="url(#clip-op-28)" aria-label="04 · Bound loaded memory; retain the evidence">
+<rect x="0" y="860" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="60" y="912.56">OPENPOKE  /  04</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="60" y="972.8">Bound loaded memory; retain the evidence</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="60" y="1014.24">Conversation Memory and each EA&apos;s Agent Memory have separate budgets.</tspan></text>
+<rect x="60" y="1064" width="550" height="390" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="84" y="1112.84">Interaction Agent</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="84" y="1167.16">Conversation summary + recent chat.</tspan><tspan x="84" y="1197.52"></tspan><tspan x="84" y="1227.88">Up to 8,000 estimated history</tspan><tspan x="84" y="1258.24">tokens.</tspan><tspan x="84" y="1288.6000000000001"></tspan><tspan x="84" y="1318.96">Recent EA references support</tspan><tspan x="84" y="1349.3200000000002">continuity.</tspan></text>
+<rect x="670" y="1064" width="550" height="390" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="694" y="1112.84">Execution Agent</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="694" y="1167.16">State + earlier-work summary +</tspan><tspan x="694" y="1197.52">recent complete exchanges.</tspan><tspan x="694" y="1227.88"></tspan><tspan x="694" y="1258.24">Up to 8,000 estimated history</tspan><tspan x="694" y="1288.6000000000001">tokens.</tspan><tspan x="694" y="1318.96"></tspan><tspan x="694" y="1349.3200000000002">Retrieve exact sources when needed.</tspan></text>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="640" y="1537.76">Keep original source records after summarization.</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="21" font-weight="400" text-anchor="middle"><tspan x="640" y="1590.32">Search-field changes queue background indexing; incomplete indexing stays visible.</tspan></text>
+</g>
+<g clip-path="url(#clip-op-2l)" aria-label="05 · Bound execution without losing queued work">
+<rect x="1320" y="860" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="1380" y="912.56">OPENPOKE  /  05</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="1380" y="972.8">Bound execution without losing queued work</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="1380" y="1014.24">Chat requests and scheduled Triggers share the same durable queue.</tspan></text>
+<rect x="1380" y="1064" width="360" height="104" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="1560" y="1109.12">100</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="1560" y="1147.48">active globally</tspan></text>
+<rect x="1780" y="1064" width="360" height="104" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="1960" y="1109.12">100</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="1960" y="1147.48">waiting capacity</tspan></text>
+<rect x="2180" y="1064" width="360" height="104" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="36" font-weight="600" text-anchor="middle"><tspan x="2360" y="1109.12">1</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="2360" y="1147.48">active per EA</tspan></text>
+<rect x="1380" y="1229" width="550" height="342" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1404" y="1277.84">Time and planning</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1404" y="1332.16">300 seconds maximum queue wait.</tspan><tspan x="1404" y="1362.52">300 seconds maximum run time.</tspan><tspan x="1404" y="1392.88"></tspan><tspan x="1404" y="1423.24">8 EA planning turns; each turn may</tspan><tspan x="1404" y="1453.6000000000001">select multiple tools.</tspan></text>
+<rect x="1990" y="1229" width="550" height="342" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2014" y="1277.84">Request limits</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2014" y="1332.16">5 follow-up stages.</tspan><tspan x="2014" y="1362.52">20 total job submissions.</tspan><tspan x="2014" y="1392.88"></tspan><tspan x="2014" y="1423.24">Oldest runnable work starts first;</tspan><tspan x="2014" y="1453.6000000000001">busy EAs do not block others.</tspan></text>
+</g>
+<g clip-path="url(#clip-op-35)" aria-label="06 · Deliver settled results; recover carefully">
+<rect x="2640" y="860" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="2700" y="912.56">OPENPOKE  /  06</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="2700" y="972.8">Deliver settled results; recover carefully</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="2700" y="1014.24">A terminal execution has an outcome, including failure.</tspan></text>
+<rect x="2700" y="1064" width="550" height="414" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2724" y="1112.84">Result groups</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2724" y="1167.16">Seal when submissions finish.</tspan><tspan x="2724" y="1197.52"></tspan><tspan x="2724" y="1227.88">Deliver after every member has a</tspan><tspan x="2724" y="1258.24">terminal outcome.</tspan><tspan x="2724" y="1288.6000000000001"></tspan><tspan x="2724" y="1318.96">An execution can succeed while its</tspan><tspan x="2724" y="1349.3200000000002">EA still awaits approval.</tspan></text>
+<rect x="3310" y="1064" width="550" height="414" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="3334" y="1112.84">Uncertain actions</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="3334" y="1167.16">An uncertain external write stops</tspan><tspan x="3334" y="1197.52">the run immediately.</tspan><tspan x="3334" y="1227.88"></tspan><tspan x="3334" y="1258.24">Require review before continuing.</tspan><tspan x="3334" y="1288.6000000000001"></tspan><tspan x="3334" y="1318.96">At most one eligible read-only retry</tspan><tspan x="3334" y="1349.3200000000002">per initiating request.</tspan></text>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="middle"><tspan x="3280" y="1566.16">Terminal = succeeded · failed · expired · interrupted · rejected</tspan></text>
+</g>
+<g clip-path="url(#clip-op-3h)" aria-label="07 · Keep ongoing work consistent across time">
+<rect x="0" y="1720" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="60" y="1772.56">OPENPOKE  /  07</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="60" y="1832.8">Keep ongoing work consistent across time</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="60" y="1874.24">EA work state is separate from an execution&apos;s outcome.</tspan></text>
+<rect x="60" y="1924" width="360" height="462" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="84" y="1972.84">EA work state</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="84" y="2027.16">open</tspan><tspan x="84" y="2057.52">waiting_for_user</tspan><tspan x="84" y="2087.88">waiting_for_trigger</tspan><tspan x="84" y="2118.2400000000002">completed</tspan><tspan x="84" y="2148.6">needs_review</tspan></text>
+<rect x="460" y="1924" width="360" height="462" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="484" y="1972.84">Archive safely</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="484" y="2027.16">Completed + 30</tspan><tspan x="484" y="2057.52">inactive days.</tspan><tspan x="484" y="2087.88"></tspan><tspan x="484" y="2118.2400000000002">No pending work,</tspan><tspan x="484" y="2148.6">approvals, active</tspan><tspan x="484" y="2178.96">Triggers or unresolved</tspan><tspan x="484" y="2209.32">interruptions.</tspan><tspan x="484" y="2239.6800000000003"></tspan><tspan x="484" y="2270.04">Archived EAs stay</tspan><tspan x="484" y="2300.4">searchable.</tspan></text>
+<rect x="860" y="1924" width="360" height="462" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="884" y="1972.84">Restart / reset</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="884" y="2027.16">Restart: classify lost</tspan><tspan x="884" y="2057.52">runs; resume eligible</tspan><tspan x="884" y="2087.88">queued work.</tspan><tspan x="884" y="2118.2400000000002"></tspan><tspan x="884" y="2148.6">Clear History: drain,</tspan><tspan x="884" y="2178.96">advance generation,</tspan><tspan x="884" y="2209.32">clear local state.</tspan></text>
+</g>
+<g clip-path="url(#clip-op-3v)" aria-label="08 · IA roster exposure">
+<rect x="1320" y="1720" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="1380" y="1772.56">OPENPOKE  /  08</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="1380" y="1832.8">IA roster exposure</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="1380" y="1874.24">10,000 saved EAs</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start"><tspan x="1390" y="1939.4">Roster entries / search candidates</tspan></text>
+<polyline points="1470,2384 2490,2384" fill="none" stroke="#c8cfde" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="1585" y="2019" width="210" height="365" rx="0" fill="#7c3aed" stroke="#7c3aed" stroke-width="1"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="1690" y="1992.28">10,000</tspan></text>
+<rect x="2135" y="2382.9049999999997" width="210" height="1.095" rx="0" fill="#16815d" stroke="#16815d" stroke-width="1"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="2240" y="2356.185">30</tspan></text>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="1690" y="2445.76">Before</tspan></text>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="2240" y="2445.76">After</tspan></text>
+</g>
+<g clip-path="url(#clip-op-48)" aria-label="09 · EA history context">
+<rect x="2640" y="1720" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="2700" y="1772.56">OPENPOKE  /  09</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="2700" y="1832.8">EA history context</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="2700" y="1874.24">100 completed synthetic exchanges</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start"><tspan x="2710" y="1939.4">Estimated history tokens</tspan></text>
+<polyline points="2790,2384 3810,2384" fill="none" stroke="#c8cfde" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="2905" y="2022.2910833333333" width="210" height="361.70891666666665" rx="0" fill="#7c3aed" stroke="#7c3aed" stroke-width="1"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="3010" y="1995.5710833333333">59,459</tspan></text>
+<rect x="3455" y="2356.4485833333333" width="210" height="27.551416666666668" rx="0" fill="#16815d" stroke="#16815d" stroke-width="1"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="3560" y="2329.7285833333335">4,529</tspan></text>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="3010" y="2445.76">Before</tspan></text>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="3560" y="2445.76">After</tspan></text>
+</g>
+<g clip-path="url(#clip-op-4l)" aria-label="10 · Execution admission — recorded fixture">
+<rect x="0" y="2580" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="60" y="2632.56">OPENPOKE  /  10</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="60" y="2692.8">Execution admission — recorded fixture</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="60" y="2734.24">24 independent jobs · explicit fixture limit: 4</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start"><tspan x="70" y="2799.4">Concurrent executions · historical measurement</tspan></text>
+<polyline points="150,3244 1170,3244" fill="none" stroke="#c8cfde" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="265" y="2879" width="210" height="365" rx="0" fill="#7c3aed" stroke="#7c3aed" stroke-width="1"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="370" y="2852.28">24</tspan></text>
+<rect x="815" y="3183.1666666666665" width="210" height="60.833333333333336" rx="0" fill="#16815d" stroke="#16815d" stroke-width="1"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="34" font-weight="600" text-anchor="middle"><tspan x="920" y="3156.4466666666667">4</tspan></text>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="370" y="3305.76">Before</tspan></text>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="28" font-weight="600" text-anchor="middle"><tspan x="920" y="3305.76">After</tspan></text>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="19" font-weight="400" text-anchor="middle"><tspan x="950" y="2833.48">Current default: 100 · rerun pending</tspan></text>
+</g>
+<g clip-path="url(#clip-op-4z)" aria-label="11 · Validation: results, stats and status">
+<rect x="1320" y="2580" width="1280" height="820" rx="0" fill="#fdfcff" stroke="#ddd6ef" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="18" font-weight="400" text-anchor="start"><tspan x="1380" y="2632.56">OPENPOKE  /  11</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="40" font-weight="600" text-anchor="start"><tspan x="1380" y="2692.8">Validation: results, stats and status</tspan></text>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start"><tspan x="1380" y="2734.24">Historical evidence stays separate from pending checks on the updated default.</tspan></text>
+<rect x="1380" y="2784" width="360" height="206" rx="12" fill="#fff5ef" stroke="#b45335" stroke-width="2"/>
+<text fill="#b45335" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1404" y="2832.84">FAIL · latest</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1404" y="2887.16">9 / 10 user turns</tspan><tspan x="1404" y="2917.52">Nov 15 · full coverage</tspan></text>
+<rect x="1780" y="2784" width="360" height="206" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1804" y="2832.84">PASS · earlier</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1804" y="2887.16">10 / 10 user turns</tspan><tspan x="1804" y="2917.52">Nov 15 · full coverage</tspan></text>
+<rect x="2180" y="2784" width="360" height="206" rx="12" fill="#eef5ff" stroke="#2563eb" stroke-width="2"/>
+<text fill="#2563eb" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2204" y="2832.84">PASS · selection</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2204" y="2887.16">9 / 9 EA selections</tspan><tspan x="2204" y="2917.52">Both recorded runs</tspan></text>
+<rect x="1380" y="3034" width="360" height="206" rx="12" fill="#edf9f2" stroke="#16815d" stroke-width="2"/>
+<text fill="#16815d" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1404" y="3082.84">PASS · drafts</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1404" y="3137.16">6 / 6 draft workflows</tspan><tspan x="1404" y="3167.52">Both recorded runs</tspan></text>
+<rect x="1780" y="3034" width="360" height="206" rx="12" fill="#f5f0ff" stroke="#7c3aed" stroke-width="2"/>
+<text fill="#7c3aed" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="1804" y="3082.84">PENDING</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="1804" y="3137.16">100-worker runtime</tspan><tspan x="1804" y="3167.52">New admission result</tspan></text>
+<rect x="2180" y="3034" width="360" height="206" rx="12" fill="#f4f5f8" stroke="#64748b" stroke-width="2"/>
+<text fill="#64748b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="27" font-weight="600" text-anchor="start"><tspan x="2204" y="3082.84">NOT TESTED</tspan></text>
+<text fill="#24324b" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="23" font-weight="400" text-anchor="start"><tspan x="2204" y="3137.16">Real Gmail mailbox</tspan><tspan x="2204" y="3167.52">Synthetic email tools</tspan></text>
+<text fill="#b45335" font-family="Excalifont, 'Comic Sans MS', Arial, sans-serif" font-size="24" font-weight="400" text-anchor="middle"><tspan x="1960" y="3313.08">Latest failure: execution interrupted · EA needs_review</tspan></text>
+</g>
+</svg>

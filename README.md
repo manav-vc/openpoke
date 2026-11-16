@@ -1,54 +1,61 @@
 # OpenPoke: Controlling agent overload
 
-An [OpenPoke](https://github.com/shlokkhemani/OpenPoke) fork that addresses **agent overload**. The **Interaction Agent (IA)** handles the conversation; saved **Execution Agents (EAs)** do the work. Each EA retains its identity, assigned work, state, and history across runs.
+An [OpenPoke](https://github.com/shlokkhemani/openpoke) fork that keeps growing agent workloads manageable. The **Interaction Agent (IA)** handles the conversation. Saved **Execution Agents (EAs)** own ongoing work; an **execution** is one queued run for an EA.
+
+[Architecture](#architecture-and-diagrams) · [Changes](#the-problems-changes-and-why) · [Validation and stats](#validation) · [Run locally](docs/setup.md)
 
 ## Architecture and diagrams
 
-[**Open the presentation diagram — Excalidraw**](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ)
+![OpenPoke presentation diagram: bounded discovery and memory, a shared execution queue, and grouped results](docs/diagrams/openpoke-overload-overview.svg)
 
-Select **Present** for the walkthrough of the problems, solutions, architecture, and before/after charts.
+[Editable presentation](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) · [Local Excalidraw presentation](docs/diagrams/openpoke-overload-solutions.excalidraw) · [Mermaid sequence](docs/diagrams/openpoke-overload-sequence.mmd)
 
-For the detailed request flow, see the [Mermaid sequence diagram](https://mermaid.ai/d/d30bea16-7093-473f-971e-fea1f4a4dba9) or its [source](docs/diagrams/openpoke-overload-sequence.mmd).
+<details>
+<summary>View the full local presentation — 11 slides</summary>
 
-EA records, search data, execution memory, and the queue use SQLite. No separate vector database is needed.
+![OpenPoke presentation with architecture, design decisions, three evidence charts, and validation status](docs/diagrams/openpoke-overload-solutions.svg)
+
+</details>
+
+EA records, keyword search (SQLite FTS5), embeddings, source history, and the queue live in SQLite. No separate vector database is needed.
 
 ## The problems, changes, and why
 
 | Problem | What changed | Why it helps |
 | --- | --- | --- |
-| **IA context:** loading the full EA roster bloats its context window. | Use recent EA links or keyword + semantic search: **30 candidates per turn, 10 at a time**. Budget chat history. | Keep relevant context in the prompt; keep the directory in storage. |
-| **EA history:** loading an EA's entire history bloats its context window. | Budget saved state, an earlier-work summary, and recent history. Retrieve exact source records on demand. | Keep each run's context manageable while preserving original details. |
-| **Execution overload:** too many simultaneous EA runs overload resources. | Share one persistent queue across IA requests and Triggers: **4 running, 100 waiting, 1 running per EA**. | Bound resource use and prevent concurrent updates to the same EA. |
+| **IA context grows with the EA roster.** | Resolve recent EA links or combine keyword and semantic search. Show at most **30 candidates, 10 per page**; budget conversation history. | Keep discovery relevant as the number of saved EAs grows. |
+| **EA context grows with execution history.** | Load state, an earlier-work summary, and recent complete exchanges within an **8,000 estimated-token history budget**. Retrieve exact sources on demand. | Preserve original records while keeping each run's loaded history bounded. |
+| **Too many executions run at once.** | Share a persistent queue across chat and Triggers: **100 running, 100 waiting, one active execution per EA**. | Bound global work and serialize updates to each EA. |
 
 ## Keeping work consistent
 
-- **Verify and reuse:** inspect the EA's stable ID and current record. Reject conflicting confirmed invoice/case IDs. Search active and archived EAs before creating another to keep related history together.
-- **Recover safely:** a **300-second run deadline** frees stalled slots. Restart resumes unexpired queued jobs. Eligible interrupted read-only work allows one automatic retry per initiating request; interrupted writes or unknown tools require review.
-- **Group outcomes:** return related results after submissions finish and every job has an outcome, including failures. Cap each initiating request at **5 follow-up stages and 20 job submissions**.
-- **Archive safely:** archive eligible completed EAs after **30 inactive days**. Pending work, approvals, active Triggers, or unresolved execution issues prevent archival. Archived EAs stay searchable and reusable.
+- **Find and verify:** inspect the stable EA ID and current version before submission. Confirmed invoice/case/task ID conflicts rule out a match. Search active and archived records before creating another EA.
+- **Save sources:** keep original records after summarization. Search-field changes queue background indexing; missing or failed indexing stays visibly degraded.
+- **Bound each request:** allow **5 follow-up stages and 20 total submissions**. Each EA run allows **8 planning turns**, which may contain multiple tool calls.
+- **Group outcomes:** workers may start before a group is sealed. Deliver its results only after sealing and every execution is terminal: `succeeded`, `failed`, `expired`, `interrupted`, or `rejected`.
+- **Recover safely:** wait at most **300 seconds in the queue** and run at most **300 seconds**. Resume eligible queued work after restart. Allow one recorded, eligible read-only retry per initiating request. An uncertain external write stops the run immediately and requires review.
+- **Archive completed work:** after **30 inactive days**, only when no work, approval, active Trigger, or unresolved interruption blocks it. Archived EAs remain searchable and reusable.
 
-Limits are configurable defaults; token budgets are estimates with a safety margin. The implementation supports **one backend process**.
+Limits are configurable; token counts are estimates with a safety margin. Run **one backend process**. Completing an execution does not necessarily complete its EA's ongoing work.
 
 ## Validation
 
-[Three before/after charts](docs/charts/README.md) show roster exposure, history context growth, and controlled queue admission, with source data and reproduction commands.
+[Results and status guide](docs/evaluation/README.md#validation-status) · [Scenario outcomes](docs/evaluation/README.md#scenario-outcomes) · [Before/after charts](docs/charts/README.md) · [Run checks](tests/README.md#run-checks)
 
-Recorded offline results, **November 14, 2026**:
+| Status | Check | Recorded result | Evidence |
+| --- | --- | --- | --- |
+| **FAIL — latest full run** | Real models + synthetic email tools | **9/10** turns; **9/9** EA selections; **6/6** draft workflows | [Latest run, Nov 15](docs/evaluation/README.md#latest-full-run) |
+| **PASS — earlier full run** | Same evaluated application and fixtures | **10/10** turns; **9/9** EA selections; **6/6** draft workflows | [Earlier run, Nov 15](docs/evaluation/README.md#earlier-full-run) |
+| **PASS — historical** | Offline tests and retrieval | **129 tests**, **60/60** top-30 retrieval cases; candidate cap **30** at 1,000 and 10,000 EAs | [Offline evidence, Nov 14](docs/evaluation/README.md#offline-evidence) |
+| **PENDING** | Updated **100-concurrent** configuration | Full runtime suite and admission measurement need a rerun on this revision | [Current revision](docs/evaluation/README.md#current-revision) |
+| **NOT TESTED** | Real Gmail workflows | No recorded real-mailbox result | [Coverage limits](docs/evaluation/README.md#coverage-limits) |
 
-- **129 automated tests passed.**
-- Expected EAs appeared in the top 30 in **all 60 retrieval cases**, with no identity-conflict or ambiguity-guard failures.
-- Candidate pools stayed at **30** with both **1,000 and 10,000 saved EAs**.
+The latest failure is the unavailable-email scenario: execution `interrupted`, EA `needs_review`; the scorer expected `succeeded` or `failed`. It reported the outage without inventing a due date or sending email. The failure remains visible.
 
-These offline checks use stand-ins for embeddings, model responses, and Gmail.
-
-[Recorded real-model workflow results](docs/evaluation/README.md), **November 15, 2026**: the latest full run passed **9/10 user turns** across nine scenarios; the earlier full run passed **10/10**. Both selected the correct EA in **9/9 applicable turns** and passed **6/6 draft workflows**, with no duplicate EAs or unapproved send attempts. The latest run failed the unavailable-email case because its job ended as `interrupted`; it correctly reported the outage without inventing a due date.
-
-These runs use real chat models and embeddings with synthetic email tools. See the [evaluation guide](tests/README.md#real-model-workflows) to reproduce them. Real Gmail workflows remain unvalidated.
+Recorded results predate the 100-concurrent update. The saved concurrency chart uses a **four-worker fixture**; it is historical evidence, not a measurement of the new limit. Dates above use Toronto time.
 
 ## Run and explore
 
-- [Local setup](docs/setup.md)
-- [Tests and evaluation commands](tests/README.md)
-- [Implementation details and configuration](docs/agent-optimization.md)
+[Local setup](docs/setup.md) · [Test commands](tests/README.md) · [Implementation and settings](docs/agent-optimization.md) · [Local diagram guide](docs/diagrams/README.md)
 
 Built on OpenPoke. MIT license; see [LICENSE](LICENSE).

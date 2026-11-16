@@ -9,6 +9,8 @@ Copy `.env.example` to `.env` (`Copy-Item .env.example .env` in PowerShell, or `
 - `OPENROUTER_API_KEY` from [OpenRouter](https://openrouter.ai/).
 - `COMPOSIO_API_KEY` and `COMPOSIO_GMAIL_AUTH_CONFIG_ID` from a Gmail integration in [Composio](https://composio.dev/).
 
+The defaults allow **100 running executions globally**, **100 waiting**, and **one active execution per EA**. Existing `.env` files retain their overrides: set `OPENPOKE_AGENT_MAX_CONCURRENCY=100` to use the updated limit.
+
 ## Install
 
 Create a virtual environment with Python 3.10+:

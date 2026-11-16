@@ -1,12 +1,16 @@
 # Before and after: agent overload
 
-Three charts correspond to the three problems on the [Excalidraw board](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ). Put each PNG beside its matching problem and solution. The SVG copies scale cleanly for slides or further editing.
+**Recorded evidence:** the concurrency chart uses a **four-worker fixture**, while the current application default is **100 concurrent executions**. Its measured values and raw JSON are preserved. A new measurement of the 100-worker configuration is **pending**; these charts do not claim it has passed.
+
+[Validation status](../evaluation/README.md#validation-status) · [Source measurements](measurements.json) · [Reproduction](#sources-and-reproduction)
+
+Three charts correspond to the three problems in the [Excalidraw presentation](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ). Put each PNG beside its matching problem and solution. The SVG copies scale cleanly for slides or further editing.
 
 | Problem | Before | After | Evidence |
 | --- | --- | --- | --- |
 | IA roster exposure at 10,000 saved EAs | 10,000 roster entries | At most 30 search candidates, 10 per page | Upstream renderer + saved offline retrieval benchmark |
 | EA history at 100 completed exchanges | 59,459 estimated context tokens | 4,529 estimated context tokens | Actual context builders on synthetic history |
-| Simultaneous EA work in a 24-job burst | 24 running | At most 4 running; the rest wait | Source-derived upstream schedule + production queue admission replay |
+| Simultaneous EA work in a 24-job burst | 24 running | 4 running at the fixture's explicit limit; the rest wait | Source-derived upstream schedule + production queue admission replay |
 
 ## 1. IA roster exposure
 
@@ -32,13 +36,13 @@ These are conservative character-based estimates with a 15% safety margin, using
 
 [SVG](02-history-context.svg)
 
-## 3. Execution concurrency
+## 3. Execution concurrency — recorded four-worker fixture
 
 ![Burst execution versus a shared queue with four running jobs](03-execution-concurrency.png)
 
-**Explain it:** “A burst becomes queued work: at most four EAs run together, and the remaining jobs wait rather than disappearing.”
+**Explain it:** “In this recorded four-worker fixture, a burst becomes queued work: four EAs run together and the remaining jobs wait.”
 
-Twenty-four independent requests, each for a distinct EA, arrive at simulated time zero. Each job lasts exactly one simulated second. The upstream trace is derived from its immediate-execution code. The after trace uses the production `submit` and `_claim_next` SQLite admission paths, with simulated completions. All 24 jobs complete; peak admission is four. Distinct requests avoid changing the default 20-submission limit per initiating request.
+Twenty-four independent requests, each for a distinct EA, arrive at simulated time zero. Each job lasts exactly one simulated second. The upstream trace is derived from its immediate-execution code. The after trace uses the production `submit` and `_claim_next` SQLite admission paths, with simulated completions. All 24 jobs complete; peak admission is four. The measurement script explicitly sets this fixture limit; it does not read the application's updated 100-worker default. Distinct requests avoid changing the default 20-submission limit per initiating request.
 
 This is an admission simulation, not an end-to-end scheduler, live-model latency, or throughput benchmark. It deliberately shows the tradeoff: spreading work across six simulated seconds instead of a one-second burst. Per-EA serialization, queue overflow, timeouts, and restart recovery belong to separate tests.
 

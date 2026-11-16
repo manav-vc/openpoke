@@ -393,7 +393,7 @@ class ExecutionService:
         if self.registry.generation != self._generation:
             return
         self._expire_queued()
-        while len(self._workers) < self._setting("agent_max_concurrency", 4):
+        while len(self._workers) < self._setting("agent_max_concurrency", 100):
             job = self._claim_next()
             if not job:
                 break
@@ -420,7 +420,7 @@ class ExecutionService:
     def _claim_next(self):
         with self.registry.connect(write=True, generation=self._generation) as conn:
             running = conn.execute("SELECT COUNT(*) FROM execution_jobs WHERE status='running' AND generation=?", (self._generation,)).fetchone()[0]
-            if running >= self._setting("agent_max_concurrency", 4):
+            if running >= self._setting("agent_max_concurrency", 100):
                 return None
             row = conn.execute("""SELECT j.* FROM execution_jobs j JOIN agents a ON a.id=j.agent_id
                 WHERE j.status='queued' AND j.generation=?

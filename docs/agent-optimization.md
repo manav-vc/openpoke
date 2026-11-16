@@ -20,11 +20,11 @@ The registry imports legacy roster, history, and trigger ownership idempotently.
 
 ## Queue and recovery
 
-Run **one backend process**. Chat requests and scheduled Triggers share one persistent queue: **4 running jobs, 100 waiting, and one running job per EA**. Oldest runnable work starts first. Defaults allow **300 seconds waiting** and **300 seconds running**.
+Run **one backend process**. Chat requests and scheduled Triggers share one persistent queue: **100 running jobs, 100 waiting, and one running job per EA**. Oldest runnable work starts first. Defaults allow **300 seconds waiting** and **300 seconds running**.
 
 Each result group is sealed when submissions finish and delivered after every job has an outcome, including failures or rejections. Workers can start before sealing. Each initiating request permits **5 follow-up stages, 20 submissions, and at most one automatic retry of eligible interrupted read-only work**.
 
-After restart, unexpired queued work resumes. Interrupted writes or unknown tools require review; new submissions for that EA are rejected and existing queued follow-ups are held. Inspect the blocking execution and original tool state, then use `resolve_interrupted_execution` to mark it completed, abandon it, or explicitly retry. Uncertain actions are not replayed automatically.
+After restart, unexpired queued work resumes. An uncertain external write stops a live execution immediately, before another tool call or model turn. Interrupted writes or unknown tools require review; new submissions for that EA are rejected and existing queued follow-ups are held. Inspect the blocking execution and original tool state, then use `resolve_interrupted_execution` to mark it completed, abandon it, or explicitly retry. Uncertain actions are not replayed automatically.
 
 Interaction plans are journaled before effects. Stable operation keys deduplicate submissions and replies, while trigger ID, scheduled time, and reset generation deduplicate reminder occurrences. Shutdown drains for up to 30 seconds before recording interruptions. Clearing history stops background work and advances a generation guard; an external action already in progress may still require review.
 
@@ -51,5 +51,8 @@ Startup and hourly maintenance archive completed EAs after 30 inactive days. Que
 Structured logs and `registry_metrics()` expose retrieval, indexing, queue, archival, and token-usage diagnostics. Ranking scores are not probabilities of a correct match.
 
 ## Verification
+
+The current 100-concurrent default is reflected in Settings, the environment example, and both queue fallbacks. Saved workflow runs and the four-worker admission fixture predate this update; runtime checks on this revision are **pending**. See the [validation status guide](evaluation/README.md#validation-status).
+
 
 Use [tests/README.md](../tests/README.md) for test coverage and evaluation commands. Offline stand-ins validate retrieval and recovery mechanics. The real-model workflow evaluator checks IA/EA behavior, hybrid search, queue delivery, and synthetic actions. [Recorded full runs](evaluation/README.md) passed 10/10 turns earlier and 9/10 in the latest run, with identical evaluated application code and fixtures. The latest unavailable-email case reported the outage correctly but failed the queue-outcome check because the job ended as `interrupted`. Real Gmail workflows remain unvalidated.

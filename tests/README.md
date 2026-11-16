@@ -2,6 +2,10 @@
 
 All automated tests, evaluation code, and labeled fixtures live in this directory.
 
+[Results and status](../docs/evaluation/README.md#validation-status) · [Run checks](#run-checks) · [Real-model workflows](#real-model-workflows) · [Charts](#beforeafter-charts)
+
+Recorded results are historical. The current **100-concurrent** default needs a fresh runtime/admission check. See the [current revision status](../docs/evaluation/README.md#current-revision) and [execution/EA state guide](../docs/evaluation/README.md#execution-status-and-ea-state).
+
 | File | Description |
 | --- | --- |
 | [test_budgets.py](test_budgets.py) | Checks token limits, safe text truncation, and valid JSON excerpts. |
@@ -18,6 +22,8 @@ All automated tests, evaluation code, and labeled fixtures live in this director
 | [fixtures/agent_retrieval_cases.json](fixtures/agent_retrieval_cases.json) | Defines synthetic agents and labeled exact-reference, paraphrase, ambiguity, archive, no-match, and identity-conflict cases. |
 | [evaluation/evaluate_agent_workflows.py](evaluation/evaluate_agent_workflows.py) | Runs real interaction/execution models and embeddings with controlled email tools across nine scenarios and ten user turns. |
 | [fixtures/agent_workflow_cases.json](fixtures/agent_workflow_cases.json) | Defines workflow requests and expected owners, actions, facts, clarification, and approval behavior. |
+
+## Run checks
 
 Run these commands from the repository root:
 
@@ -80,13 +86,23 @@ The runner prints a unique output location under server/data/evaluations/. The r
 
 Report updates retry temporary Windows file locks. If replacement stays blocked, the error names a complete preserved snapshot; the previous report remains intact. For persistent sync/editor locks, close the file or choose a fresh --output path outside the synced folder.
 
+### Result states
+
+| Exit code | State | Interpretation |
+| --- | --- | --- |
+| `0` | PASS | Every planned turn completed and passed. |
+| `1` | FAIL | All turns completed, with one or more failures. |
+| `2` | BLOCKED / INCOMPLETE | Setup failed or coverage is incomplete; cannot count as a pass. |
+
+A report's `status: completed` alone does not mean all checks passed. Inspect `summary.complete`, `summary.all_passed`, coverage, and each turn's checks. [Recorded scenarios](../docs/evaluation/README.md#scenario-outcomes) show both execution outcomes and EA work states.
+
 Passing a draft case requires the correct agent, recipient, thread, requested facts, exactly one persisted draft shown verbatim to the user, and a pending approval. A blocked send attempt still fails the case. Read-only answers may use the correct saved source without creating a redundant execution job. Clarifications must ask a relevant distinguishing question and perform no work. Incomplete runs always show coverage and cannot pass overall. Exit codes: **0** complete pass, **1** complete with failures, **2** blocked/incomplete.
 
 This is a small authored exploratory suite, not production accuracy or an upstream baseline comparison. Reply/clarification checks use disclosed word matching and may reject valid paraphrases. Seed indexing is measured separately from workflow latency. Compaction and automatic archiving are disabled for reproducibility; existing archived-agent reuse is still exercised. Nested Gmail search-model quality, real mailbox behavior, restart recovery, and summary quality remain outside this evaluation. Model behavior and timings vary across runs, as the two recorded full runs demonstrate.
 
 ## Before/after charts
 
-[The three overload charts](../docs/charts/README.md) compare directory exposure, synthetic history context, and controlled execution admission against upstream `5b5f635`. The committed measurements include source hashes and a saved retrieval benchmark excerpt.
+[The three overload charts](../docs/charts/README.md) compare directory exposure, synthetic history context, and controlled execution admission against upstream `5b5f635`. The committed measurements include source hashes and a saved retrieval benchmark excerpt. The concurrency fixture deliberately sets **4 workers / 24 jobs**; it is historical evidence and does not validate the current **100-worker** default. A new admission run must record its own limit, burst size, and source revision.
 
 ```powershell
 python tests/evaluation/measure_overload.py
