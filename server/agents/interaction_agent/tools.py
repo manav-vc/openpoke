@@ -9,6 +9,7 @@ from typing import Any, Optional
 
 from ...config import get_settings
 from ...services.execution.budgets import bounded_json, estimate_tokens, truncate_text
+from ...services.execution.drafts import load_pending_draft, pending_draft_references
 
 
 @dataclass
@@ -46,8 +47,8 @@ TOOL_SCHEMAS = [
     _schema("resolve_interrupted_execution", "Only following explicit user direction, resolve uncertain work.",
             {"execution_id": _STR, "resolution": {"type": "string", "enum": ["completed", "abandon", "retry"]}}, ["execution_id", "resolution"]),
     _schema("send_message_to_user", "Record a response or clarification for the user.", {"message": _STR}, ["message"]),
-    _schema("send_draft", "Record an exact draft for review; then ask the user how to proceed.",
-            {"to": _STR, "subject": _STR, "body": _STR, "agent_id": _STR}, ["to", "subject", "body"]),
+    _schema("send_draft", "Present an existing pending Execution Agent draft by its saved IDs. Does not compose or create drafts.",
+            {"agent_id": _STR, "draft_id": _STR}, ["agent_id", "draft_id"]),
     _schema("wait", "Avoid a duplicate response already in the history.", {"reason": _STR}, ["reason"]),
 ]
 
@@ -109,6 +110,32 @@ class ToolContext:
     def check_generation(self):
         if self.registry.generation != self.generation:
             raise RuntimeError("Interaction belongs to a cleared generation")
+
+    def available_tools(self, schemas):
+        # Before execution there is no draft to present, so do not advertise
+        # a shortcut that can be mistaken for draft creation.
+        ids = [*self.linked_agent_ids, *self.inspected]
+        available = bool(pending_draft_references(self.registry, ids, generation=self.generation, limit=1))
+        return [schema for schema in schemas if available or schema["function"]["name"] != "send_draft"]
+
+    def present_draft(self, args, operation_key):
+        self.check_generation()
+        if set(args) != {"agent_id", "draft_id"}:
+            raise ValueError("send_draft only presents saved agent_id/draft_id references. Submit drafting instructions to an Execution Agent first.")
+        agent = self.registry.get(args["agent_id"])
+        if self._identity_conflicts(agent):
+            raise ValueError("Confirmed task identifiers conflict")
+        draft = load_pending_draft(self.registry, args["agent_id"], args["draft_id"],
+                                   generation=self.generation, account_scope=self.account_scope)
+        text = f"To: {draft['recipient_email']}\nSubject: {draft['subject']}\n\n{draft['body']}"
+        if draft["agent_id"] not in self.linked_agent_ids:
+            self.linked_agent_ids.append(draft["agent_id"])
+        self.log.append_once("poke_reply", text, event_key=operation_key, generation=self.generation,
+                             registry=self.registry, agent_ids=[draft["agent_id"]],
+                             request_id=self.request_id, batch_id=self.batch_id)
+        return ToolResult(True, {"status": "recorded", "agent_id": draft["agent_id"],
+                                "draft_id": draft["draft_id"], "source_event_id": draft["source_event_id"]},
+                          recorded_reply=True)
 
     def _discovery(self):
         self.discovery_calls += 1
@@ -274,13 +301,11 @@ class ToolContext:
             if not self.is_user_turn or resolution not in cues or not re.search(cues[resolution], self.latest_text, re.I):
                 raise ValueError("Ask the user how to resolve the interrupted execution")
             return ToolResult(True, await self.queue.resolve_interrupted(args["execution_id"], resolution, explicit_user=True))
-        if name in {"send_message_to_user", "send_draft", "wait"}:
+        if name == "send_draft":
+            return self.present_draft(args, operation_key)
+        if name in {"send_message_to_user", "wait"}:
             if name == "send_message_to_user":
                 text, tag = args["message"], "poke_reply"
-            elif name == "send_draft":
-                text, tag = f"To: {args['to']}\nSubject: {args['subject']}\n\n{args['body']}", "poke_reply"
-                if args.get("agent_id") and args["agent_id"] not in self.linked_agent_ids:
-                    self.linked_agent_ids.append(args["agent_id"])
             else:
                 text, tag = args["reason"], "wait"
             self.log.append_once(tag, text, event_key=operation_key, generation=self.generation,

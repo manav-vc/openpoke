@@ -268,3 +268,92 @@ def test_trigger_occurrence_uses_shared_queue_and_reconciles_once(state, monkeyp
         finally:
             await queue.stop()
     asyncio.run(scenario())
+
+
+def test_draft_runs_through_execution_queue_before_ia_presents_saved_content(state, monkeypatch):
+    from server.agents.execution_agent import runtime as execution
+    from server.services import gmail, triggers
+
+    monkeypatch.setattr(execution, "get_tool_registry", lambda **kwargs: {})
+    monkeypatch.setattr(execution, "get_tool_schemas", lambda: [])
+    monkeypatch.setattr(gmail, "get_active_gmail_user_id", lambda: None)
+    monkeypatch.setattr(triggers, "get_trigger_service", lambda: SimpleNamespace(list_triggers=lambda **kwargs: []))
+    registry = state.registry
+    agent = registry.create_agent("Acme invoice INV-1042", "Draft the invoice reminder for Sarah")
+    body = "Hi Sarah, invoice INV-1042 for CAD 420 is due March 15, 2027."
+    created, notifications = [], []
+    execution_steps = [
+        response(calls=[("gmail_create_draft", dict(recipient_email="sarah@acme.example",
+                                                   subject="Invoice reminder", body=body))]),
+        response(calls=[("report_task_state", dict(state="waiting_for_user", summary="Draft prepared", pending_work=True))]),
+        # Deliberately omit the ID here: delivery must supply the durable reference.
+        response("The saved draft is ready for review."),
+    ]
+
+    async def execution_llm(**kwargs):
+        return execution_steps.pop(0)
+    monkeypatch.setattr(execution, "request_chat_completion", execution_llm)
+
+    async def interaction_llm(**kwargs):
+        messages = kwargs["messages"]
+        notification = "<new_agent_message>" in messages[0]["content"]
+        results = [json.loads(m["content"]) for m in messages if m["role"] == "tool"]
+        schemas = {s["function"]["name"] for s in kwargs["tools"]}
+        if notification:
+            assert "draft-123" in messages[0]["content"]
+            assert "send_draft" in schemas
+            if not results:
+                return response(calls=[("send_draft", dict(agent_id=agent["id"], draft_id="draft-123")),
+                                       ("send_message_to_user", dict(message="Your saved draft is ready for approval."))])
+            return response()
+        if not results:
+            assert "send_draft" not in schemas
+            return response(calls=[("inspect_agent", dict(agent_id=agent["id"]))])
+        if results[-1]["tool"] == "inspect_agent":
+            return response(calls=[
+                ("send_message_to_user", dict(message="I'll prepare the draft for review.")),
+                ("send_message_to_agent", dict(agent_id=agent["id"],
+                                               expected_version=results[-1]["result"]["version"],
+                                               instructions="Draft Sarah a reminder for INV-1042.")),
+            ])
+        return response()
+
+    async def runner(job):
+        runtime = execution.ExecutionAgentRuntime(agent_id=job["agent_id"], request_id=job["request_id"],
+                                                  generation=job["generation"], registry=registry)
+
+        def draft(**arguments):
+            created.append(arguments)
+            return {"data": {"id": "draft-123"}, "successful": True}
+
+        runtime.tool_registry["gmail_create_draft"] = draft
+        return await runtime.execute(job["instructions"])
+
+    async def scenario():
+        queue = None
+
+        async def delivery(payload, context):
+            notifications.append(payload)
+            return await interaction.InteractionAgentRuntime(registry=registry, queue=queue,
+                search=SearchService(registry, settings=state.settings), conversation_log=state.log,
+                working_memory_log=state.memory, llm=interaction_llm).handle_agent_message(payload, batch_context=context)
+
+        queue = ExecutionService(registry, runner=runner, delivery=delivery, settings=state.settings)
+        runtime = interaction.InteractionAgentRuntime(registry=registry, queue=queue,
+            search=SearchService(registry, settings=state.settings), conversation_log=state.log,
+            working_memory_log=state.memory, llm=interaction_llm)
+        await queue.start()
+        try:
+            assert (await runtime.execute("Draft a reminder for INV-1042.", request_id="draft-request")).success
+            await eventually(lambda: len(notifications) == 1 and not queue._deliveries)
+            assert len(created) == 1 and created[0]["body"] == body
+            assert not execution_steps
+            with registry.connect() as conn:
+                jobs = conn.execute("SELECT agent_id,status FROM execution_jobs").fetchall()
+            assert [(j["agent_id"], j["status"]) for j in jobs] == [(agent["id"], "succeeded")]
+            replies = [m.content for m in state.log.to_chat_messages() if m.role == "assistant"]
+            assert f"To: sarah@acme.example\nSubject: Invoice reminder\n\n{body}" in replies
+            assert registry.get(agent["id"])["approval_pending"]
+        finally:
+            await queue.stop()
+    asyncio.run(scenario())

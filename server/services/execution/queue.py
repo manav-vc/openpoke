@@ -18,6 +18,7 @@ from ...config import get_settings
 from ...logging_config import logger
 from .registry import StaleGenerationError
 from .effects import tool_effect
+from .drafts import pending_draft_references
 
 TERMINAL = frozenset({"succeeded", "failed", "expired", "interrupted", "rejected"})
 _TERMINAL_SQL = "'succeeded','failed','expired','interrupted','rejected'"
@@ -521,6 +522,10 @@ class ExecutionService:
                     + str(value.get("response") or job.get("error") or "Task finished")
                     + (" [read-only; one automatic retry permitted]" if retry_allowed and context["allow_followup"] else
                        " [automatic retry unavailable; user direction required]" if job["status"] != "succeeded" else ""))
+                drafts = pending_draft_references(self.registry, [job["agent_id"]],
+                                                  request_id=job["request_id"], generation=batch["generation"])
+                if drafts:
+                    lines.append("Saved pending drafts for review (use send_draft with agent_id and draft_id): " + _json(drafts))
             response = self.delivery("\n".join(lines), context)
             if inspect.isawaitable(response):
                 response = await response

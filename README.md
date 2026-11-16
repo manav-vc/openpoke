@@ -47,13 +47,19 @@ Limits are configurable defaults; token budgets are estimates with a safety marg
 
 ## Validation
 
+[Three before/after charts](docs/charts/README.md) show roster exposure, history context growth, and controlled queue admission, with source data and reproduction commands.
+
 Recorded offline results, **November 14, 2026**:
 
 - **129 automated tests passed.**
 - Expected EAs appeared in the top 30 in **all 60 retrieval cases**, with no identity-conflict or ambiguity-guard failures.
 - Candidate pools stayed at **30** with both **1,000 and 10,000 saved EAs**.
 
-These checks use stand-ins for embeddings, model responses, and Gmail. Live EA selection and Gmail workflows still need end-to-end validation.
+These offline checks use stand-ins for embeddings, model responses, and Gmail.
+
+[Recorded real-model workflow results](docs/evaluation/README.md), **November 15, 2026**: the latest full run passed **9/10 user turns** across nine scenarios; the earlier full run passed **10/10**. Both selected the correct EA in **9/9 applicable turns** and passed **6/6 draft workflows**, with no duplicate EAs or unapproved send attempts. The latest run failed the unavailable-email case because its job ended as `interrupted`; it correctly reported the outage without inventing a due date.
+
+These runs use real chat models and embeddings with synthetic email tools. See the [evaluation guide](tests/README.md#real-model-workflows) to reproduce them. Real Gmail workflows remain unvalidated.
 
 ## Run and explore
 

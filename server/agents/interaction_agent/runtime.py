@@ -260,7 +260,7 @@ class InteractionAgentRuntime:
             else:
                 before = time.monotonic()
                 response = await self.llm(model=self.model, messages=messages, system=build_system_prompt(),
-                                          api_key=self.api_key, tools=self.tool_schemas)
+                                          api_key=self.api_key, tools=context.available_tools(self.tool_schemas))
                 context.check_generation()
                 message = (response.get("choices") or [{}])[0].get("message")
                 if not isinstance(message, dict):

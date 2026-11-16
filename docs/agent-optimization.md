@@ -12,6 +12,8 @@ Embeddings use OpenRouter's `openai/text-embedding-3-small`. Normalized vectors 
 
 ## Context and source records
 
+Email drafting runs through an EA. The IA's send_draft tool accepts only saved agent/draft IDs and displays the original successful tool-call content. It is hidden until a linked or inspected task has a pending draft. Queue notifications include saved draft references; presenting a draft preserves its approval requirement.
+
 IA conversation history and EA execution history have separate budgets. Each EA loads structured state, an earlier-work summary, and recent complete exchanges. Full source events and large-result artifacts remain available through scoped history retrieval after compaction. Token counts are estimates with a safety margin.
 
 The registry imports legacy roster, history, and trigger ownership idempotently. Stable IDs survive renaming, and ambiguous legacy log collisions are flagged. Previously truncated legacy tool results cannot be reconstructed.
@@ -50,4 +52,4 @@ Structured logs and `registry_metrics()` expose retrieval, indexing, queue, arch
 
 ## Verification
 
-Use [tests/README.md](../tests/README.md) for test coverage, commands, and offline/live evaluation. Offline stand-ins validate retrieval and recovery mechanics; live EA selection and Gmail workflows still need end-to-end validation.
+Use [tests/README.md](../tests/README.md) for test coverage and evaluation commands. Offline stand-ins validate retrieval and recovery mechanics. The real-model workflow evaluator checks IA/EA behavior, hybrid search, queue delivery, and synthetic actions. [Recorded full runs](evaluation/README.md) passed 10/10 turns earlier and 9/10 in the latest run, with identical evaluated application code and fixtures. The latest unavailable-email case reported the outage correctly but failed the queue-outcome check because the job ended as `interrupted`. Real Gmail workflows remain unvalidated.

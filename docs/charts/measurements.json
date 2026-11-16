@@ -1,0 +1,163 @@
+{
+  "baseline_commit": "5b5f635935a64ab37884c025d70abb0ed731c094",
+  "retrieval_benchmark": {
+    "source": "server/data/agent_evaluation_report.json",
+    "sha256": "b03a288a8529bc227ca39e52e5c615ff5a090909eb37c107737ea752ab624589",
+    "mode": "offline_test_double",
+    "benchmarks": [
+      {
+        "agents": 1000,
+        "dimensions": 1536,
+        "repeats": 12,
+        "p50_ms": 34.15,
+        "p95_ms": 47.29,
+        "max_candidates": 30,
+        "max_first_page_estimated_tokens": 841,
+        "vector_matrix_mib": 5.86,
+        "provider_latency_included": false,
+        "provider_usage": 0
+      },
+      {
+        "agents": 10000,
+        "dimensions": 1536,
+        "repeats": 12,
+        "p50_ms": 266.58,
+        "p95_ms": 306.31,
+        "max_candidates": 30,
+        "max_first_page_estimated_tokens": 841,
+        "vector_matrix_mib": 58.59,
+        "provider_latency_included": false,
+        "provider_usage": 0
+      }
+    ]
+  },
+  "roster": [
+    {
+      "saved_agents": 1000,
+      "upstream_roster_entries": 1000,
+      "new_search_candidates": 30,
+      "new_first_page_estimated_tokens": 841
+    },
+    {
+      "saved_agents": 10000,
+      "upstream_roster_entries": 10000,
+      "new_search_candidates": 30,
+      "new_first_page_estimated_tokens": 841
+    }
+  ],
+  "history": {
+    "points": [
+      {
+        "completed_exchanges": 1,
+        "upstream_estimated_tokens": 607,
+        "new_estimated_tokens": 2337
+      },
+      {
+        "completed_exchanges": 2,
+        "upstream_estimated_tokens": 1200,
+        "new_estimated_tokens": 4519
+      },
+      {
+        "completed_exchanges": 5,
+        "upstream_estimated_tokens": 2980,
+        "new_estimated_tokens": 4522
+      },
+      {
+        "completed_exchanges": 10,
+        "upstream_estimated_tokens": 5948,
+        "new_estimated_tokens": 4523
+      },
+      {
+        "completed_exchanges": 25,
+        "upstream_estimated_tokens": 14867,
+        "new_estimated_tokens": 4525
+      },
+      {
+        "completed_exchanges": 50,
+        "upstream_estimated_tokens": 29730,
+        "new_estimated_tokens": 4528
+      },
+      {
+        "completed_exchanges": 75,
+        "upstream_estimated_tokens": 44594,
+        "new_estimated_tokens": 4528
+      },
+      {
+        "completed_exchanges": 100,
+        "upstream_estimated_tokens": 59459,
+        "new_estimated_tokens": 4529
+      }
+    ],
+    "context_budget": 8000,
+    "source_tool_results_preserved": 100,
+    "summary": "No summary generated; measures identity plus the two most recent completed exchanges.",
+    "tokenizer": "conservative character fallback",
+    "safety_margin": 1.15,
+    "fixture": "100 identical-shape synthetic invoice exchanges; one 60-line tool result per exchange. Upstream applies its native 500-character tool-result truncation. Static system instructions excluded."
+  },
+  "concurrency": {
+    "points": [
+      {
+        "simulated_seconds": 0,
+        "upstream_running": 24,
+        "new_running": 4,
+        "new_waiting": 20,
+        "new_completed": 0
+      },
+      {
+        "simulated_seconds": 1,
+        "upstream_running": 0,
+        "new_running": 4,
+        "new_waiting": 16,
+        "new_completed": 4
+      },
+      {
+        "simulated_seconds": 2,
+        "upstream_running": 0,
+        "new_running": 4,
+        "new_waiting": 12,
+        "new_completed": 8
+      },
+      {
+        "simulated_seconds": 3,
+        "upstream_running": 0,
+        "new_running": 4,
+        "new_waiting": 8,
+        "new_completed": 12
+      },
+      {
+        "simulated_seconds": 4,
+        "upstream_running": 0,
+        "new_running": 4,
+        "new_waiting": 4,
+        "new_completed": 16
+      },
+      {
+        "simulated_seconds": 5,
+        "upstream_running": 0,
+        "new_running": 4,
+        "new_waiting": 0,
+        "new_completed": 20
+      },
+      {
+        "simulated_seconds": 6,
+        "upstream_running": 0,
+        "new_running": 0,
+        "new_waiting": 0,
+        "new_completed": 24
+      }
+    ],
+    "jobs": 24,
+    "job_duration_seconds": 1,
+    "max_concurrency": 4,
+    "upstream_method": "Source-derived: each caller immediately awaits its own runtime; no global admission limit.",
+    "new_method": "Production submit() and _claim_next(); deterministic simulated completions; scheduler/model/network excluded.",
+    "baseline_source_sha256": "461710468abedfee017c1240ece8231ecf9f56c6851d7e2be097ace91cf01c70"
+  },
+  "source_sha256": {
+    "server/services/execution/history.py": "bb181f6657641b99a7e94f522ee1e7ea25354e3440a01851a4ff176ac5c6d2fb",
+    "server/services/execution/queue.py": "22a95a24a3ddd7ac994c51926e1c00cc416ac2df092184dcdb60178953a3b7da",
+    "server/services/execution/budgets.py": "bffdd270f0a0004a7ad66a8d037d68ff86e724a3063c8919fbcbfaf0b045b0bf",
+    "tests/evaluation/measure_overload.py": "c1a9db4209b2741798be0f676c106c6904796d094c27df52cc9bca402b7ab4b7"
+  }
+}

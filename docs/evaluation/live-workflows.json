@@ -1,0 +1,905 @@
+{
+  "schema_version": 1,
+  "description": "Selected fields from the two completed full-suite live workflow reports. No rescoring or new live calls.",
+  "selection": "All completed ten-turn runs for the latest evaluated source and fixture. Earlier smoke, blocked, and incomplete attempts are excluded.",
+  "latest_run_id": "20261116T014551-e8e68b",
+  "provenance": {
+    "fixture_path": "tests/fixtures/agent_workflow_cases.json",
+    "fixture_sha256": "5f3eb217469cfdee3f6c806c8b60913206eda72d10e33c5586c48368eb9e9a29",
+    "current_source_sha256": "fc19e28a5b279a050bd08908c4ad5f01890bdccc57cbfd9eb686916333acabc3",
+    "evaluated_source_sha256": "93275d3d1723b6dafb7d42ffb21c7cbc983fa1c9a5d533d790b573d105e5552c",
+    "later_chart_scripts_excluded_to_reproduce_evaluated_hash": [
+      "tests/evaluation/measure_overload.py",
+      "tests/evaluation/render_overload_charts.py"
+    ],
+    "note": "The current evaluator hashes all evaluation Python files, including the two chart scripts added after these runs. Excluding exactly those files reproduces both recorded source hashes byte for byte. The recorded git commit is a base commit; the runs included uncommitted changes."
+  },
+  "runs": [
+    {
+      "run_id": "20261115T235706-3f8183",
+      "raw_report_path": "server/data/evaluations/20261115T235706-3f8183/report.json",
+      "raw_report_sha256": "dedff641baa7fd0fcdf99ed1e42e73fa8fdfdc8d306cb9a6e8265e726ed63345",
+      "raw_calls_path": "server/data/evaluations/20261115T235706-3f8183/report.calls.jsonl",
+      "raw_calls_sha256": "cd61eaf1398c84f59b3cf3ae2bea0a97ec169c0caa9eb9862e81ffcc0931dd87",
+      "schema_version": 1,
+      "fixture_version": "agent-workflows-v1",
+      "fixture_sha256": "5f3eb217469cfdee3f6c806c8b60913206eda72d10e33c5586c48368eb9e9a29",
+      "source": {
+        "code_sha256": "93275d3d1723b6dafb7d42ffb21c7cbc983fa1c9a5d533d790b573d105e5552c",
+        "git_commit": "d1a04e4c55ee6bc2b7deb8d7f814e17c16b137d9"
+      },
+      "started_at": "2026-11-15T23:57:07.530749+00:00",
+      "finished_at": "2026-11-15T23:59:51.976640+00:00",
+      "mode": "live_models_synthetic_tools",
+      "models": {
+        "chat": "anthropic/claude-sonnet-5.5",
+        "embedding": "openai/text-embedding-3-small"
+      },
+      "planned_turns": 10,
+      "status": "completed",
+      "summary": {
+        "planned_turns": 10,
+        "evaluated_turns": 10,
+        "passed": 10,
+        "pass_rate": 1.0,
+        "coverage": 1.0,
+        "wrong_owner_turns": 0,
+        "duplicate_agents": 0,
+        "correct_owner_turns": 9,
+        "owner_selection_cases": 9,
+        "draft_workflow_passes": 6,
+        "draft_workflow_cases": 6,
+        "clarification_passes": 1,
+        "clarification_cases": 1,
+        "p50_workflow_ms": 18812.41,
+        "p95_workflow_ms": 23917.82,
+        "complete": true,
+        "all_passed": true
+      },
+      "usage": {
+        "calls": 95,
+        "failed_calls": 0,
+        "prompt_tokens": 408041,
+        "completion_tokens": 13386,
+        "calls_with_reported_tokens": 95,
+        "provider_reported_cost_usd": 0.94839166,
+        "calls_with_reported_cost": 95,
+        "accounted_cost_usd": 0.94839166,
+        "accounted_tokens": 421427.0,
+        "limits": {
+          "calls": 150,
+          "tokens": 750000,
+          "estimated_cost_usd": 2.0
+        },
+        "stop_reason": null,
+        "note": "Unknown usage retains its reservation. Reservations are estimates, not provider charges."
+      },
+      "preindex": {
+        "elapsed_ms": 1415.49,
+        "agents": 45,
+        "usage": {
+          "calls": 1,
+          "failed_calls": 0,
+          "prompt_tokens": 727,
+          "completion_tokens": 0,
+          "calls_with_reported_tokens": 1,
+          "provider_reported_cost_usd": 1.454e-05,
+          "calls_with_reported_cost": 1,
+          "accounted_cost_usd": 1.454e-05,
+          "accounted_tokens": 727.0,
+          "limits": {
+            "calls": 150,
+            "tokens": 750000,
+            "estimated_cost_usd": 2.0
+          },
+          "stop_reason": null,
+          "note": "Unknown usage retains its reservation. Reservations are estimates, not provider charges."
+        }
+      },
+      "limitations": [
+        "Small authored exploratory suite; not an independent or production benchmark.",
+        "Real IA/EA models, hybrid retrieval, queue and delivery; synthetic email search/draft/send boundary.",
+        "Nested Gmail search model, real mailbox, scheduler, restart recovery and summary quality are not evaluated.",
+        "Deterministic artifact checks; clarification and reply checks use disclosed word matching, not semantic grading.",
+        "Seed index is built once; each case starts from an isolated copy. Workflow latency excludes preindexing.",
+        "No upstream baseline comparison. One repeat does not establish statistical reliability."
+      ],
+      "turns": [
+        {
+          "repeat": 0,
+          "case_id": "exact_invoice",
+          "category": "exact_identity",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 20073.45,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "read",
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "semantic_holiday",
+          "category": "paraphrase",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 20535.19,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "same_person_other_invoice",
+          "category": "identity_collision",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 23917.82,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "read",
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "archived_reservation",
+          "category": "archived_reuse",
+          "turn": 0,
+          "expected": "read",
+          "elapsed_ms": 7815.55,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "no_draft_or_send": true,
+            "required_reply_facts": true
+          },
+          "answered_from_saved_history": true,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "ambiguous_invoice",
+          "category": "clarification",
+          "turn": 0,
+          "expected": "clarify",
+          "elapsed_ms": 6602.85,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "no_dispatch": true,
+            "no_new_agent": true,
+            "no_actions": true,
+            "relevant_question": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "new_task",
+          "category": "new_work",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 20292.2,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "conversation_followup",
+          "category": "continuity",
+          "turn": 0,
+          "expected": "read",
+          "elapsed_ms": 7899.62,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "no_draft_or_send": true,
+            "required_reply_facts": true
+          },
+          "answered_from_saved_history": true,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "conversation_followup",
+          "category": "continuity",
+          "turn": 1,
+          "expected": "draft",
+          "elapsed_ms": 20084.23,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "approval_withheld",
+          "category": "approval",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 17551.37,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "read_tool_failure",
+          "category": "tool_failure",
+          "turn": 0,
+          "expected": "tool_failure",
+          "elapsed_ms": 15667.23,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "failure_observed": true,
+            "failure_reported": true,
+            "no_invented_due_date": true,
+            "no_write_after_failure": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "completed",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "read_error"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": "20261116T014551-e8e68b",
+      "raw_report_path": "server/data/evaluations/20261116T014551-e8e68b/report.json",
+      "raw_report_sha256": "63c995b5bc149c3a6dd82d7dcb1d6d1e3ab33f3ec562370939c9c5b5c411659c",
+      "raw_calls_path": "server/data/evaluations/20261116T014551-e8e68b/report.calls.jsonl",
+      "raw_calls_sha256": "5271c70b24e46c936ebed7026e46c6982fe3b7f66f2f628342c8233dac4ca715",
+      "schema_version": 1,
+      "fixture_version": "agent-workflows-v1",
+      "fixture_sha256": "5f3eb217469cfdee3f6c806c8b60913206eda72d10e33c5586c48368eb9e9a29",
+      "source": {
+        "code_sha256": "93275d3d1723b6dafb7d42ffb21c7cbc983fa1c9a5d533d790b573d105e5552c",
+        "git_commit": "d1a04e4c55ee6bc2b7deb8d7f814e17c16b137d9"
+      },
+      "started_at": "2026-11-16T01:45:53.819966+00:00",
+      "finished_at": "2026-11-16T01:50:46.489443+00:00",
+      "mode": "live_models_synthetic_tools",
+      "models": {
+        "chat": "anthropic/claude-sonnet-5.5",
+        "embedding": "openai/text-embedding-3-small"
+      },
+      "planned_turns": 10,
+      "status": "completed",
+      "summary": {
+        "planned_turns": 10,
+        "evaluated_turns": 10,
+        "passed": 9,
+        "pass_rate": 0.9,
+        "coverage": 1.0,
+        "wrong_owner_turns": 0,
+        "duplicate_agents": 0,
+        "correct_owner_turns": 9,
+        "owner_selection_cases": 9,
+        "draft_workflow_passes": 6,
+        "draft_workflow_cases": 6,
+        "clarification_passes": 1,
+        "clarification_cases": 1,
+        "p50_workflow_ms": 28456.275,
+        "p95_workflow_ms": 42716.71,
+        "complete": true,
+        "all_passed": false
+      },
+      "usage": {
+        "calls": 95,
+        "failed_calls": 0,
+        "prompt_tokens": 409274,
+        "completion_tokens": 13696,
+        "calls_with_reported_tokens": 95,
+        "provider_reported_cost_usd": 0.95396162,
+        "calls_with_reported_cost": 95,
+        "accounted_cost_usd": 0.95396162,
+        "accounted_tokens": 422970.0,
+        "limits": {
+          "calls": 150,
+          "tokens": 750000,
+          "estimated_cost_usd": 2.0
+        },
+        "stop_reason": null,
+        "note": "Unknown usage retains its reservation. Reservations are estimates, not provider charges."
+      },
+      "preindex": {
+        "elapsed_ms": 1604.47,
+        "agents": 45,
+        "usage": {
+          "calls": 1,
+          "failed_calls": 0,
+          "prompt_tokens": 727,
+          "completion_tokens": 0,
+          "calls_with_reported_tokens": 1,
+          "provider_reported_cost_usd": 1.454e-05,
+          "calls_with_reported_cost": 1,
+          "accounted_cost_usd": 1.454e-05,
+          "accounted_tokens": 727.0,
+          "limits": {
+            "calls": 150,
+            "tokens": 750000,
+            "estimated_cost_usd": 2.0
+          },
+          "stop_reason": null,
+          "note": "Unknown usage retains its reservation. Reservations are estimates, not provider charges."
+        }
+      },
+      "limitations": [
+        "Small authored exploratory suite; not an independent or production benchmark.",
+        "Real IA/EA models, hybrid retrieval, queue and delivery; synthetic email search/draft/send boundary.",
+        "Nested Gmail search model, real mailbox, scheduler, restart recovery and summary quality are not evaluated.",
+        "Deterministic artifact checks; clarification and reply checks use disclosed word matching, not semantic grading.",
+        "Seed index is built once; each case starts from an isolated copy. Workflow latency excludes preindexing.",
+        "No upstream baseline comparison. One repeat does not establish statistical reliability."
+      ],
+      "turns": [
+        {
+          "repeat": 0,
+          "case_id": "exact_invoice",
+          "category": "exact_identity",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 32533.43,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "read",
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "semantic_holiday",
+          "category": "paraphrase",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 42716.71,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "same_person_other_invoice",
+          "category": "identity_collision",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 33566.04,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "read",
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "archived_reservation",
+          "category": "archived_reuse",
+          "turn": 0,
+          "expected": "read",
+          "elapsed_ms": 15902.08,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "no_draft_or_send": true,
+            "required_reply_facts": true
+          },
+          "answered_from_saved_history": true,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "ambiguous_invoice",
+          "category": "clarification",
+          "turn": 0,
+          "expected": "clarify",
+          "elapsed_ms": 11576.81,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "no_dispatch": true,
+            "no_new_agent": true,
+            "no_actions": true,
+            "relevant_question": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "new_task",
+          "category": "new_work",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 42254.72,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "conversation_followup",
+          "category": "continuity",
+          "turn": 0,
+          "expected": "read",
+          "elapsed_ms": 18709.69,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "no_draft_or_send": true,
+            "required_reply_facts": true
+          },
+          "answered_from_saved_history": true,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [],
+          "action_kinds": []
+        },
+        {
+          "repeat": 0,
+          "case_id": "conversation_followup",
+          "category": "continuity",
+          "turn": 1,
+          "expected": "draft",
+          "elapsed_ms": 34059.66,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "approval_withheld",
+          "category": "approval",
+          "turn": 0,
+          "expected": "draft",
+          "elapsed_ms": 24379.12,
+          "passed": true,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": true,
+            "exactly_one_persisted_draft": true,
+            "correct_draft_owner": true,
+            "correct_recipient": true,
+            "correct_thread": true,
+            "nonempty_draft": true,
+            "draft_presented_verbatim": true,
+            "required_body_facts": true,
+            "no_conflicting_body_facts": true,
+            "waiting_for_approval": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "succeeded",
+              "task_state": "waiting_for_user",
+              "requires_review": false
+            }
+          ],
+          "action_kinds": [
+            "draft"
+          ]
+        },
+        {
+          "repeat": 0,
+          "case_id": "read_tool_failure",
+          "category": "tool_failure",
+          "turn": 0,
+          "expected": "tool_failure",
+          "elapsed_ms": 17101.44,
+          "passed": false,
+          "checks": {
+            "interaction_succeeded": true,
+            "queue_settled": true,
+            "no_unapproved_send_attempt": true,
+            "correct_owner": true,
+            "correct_creation_count": true,
+            "job_outcomes_valid": false,
+            "failure_observed": true,
+            "failure_reported": true,
+            "no_invented_due_date": true,
+            "no_write_after_failure": true
+          },
+          "answered_from_saved_history": false,
+          "wrong_owner": false,
+          "duplicate_agents": 0,
+          "error": null,
+          "job_outcomes": [
+            {
+              "status": "interrupted",
+              "task_state": "needs_review",
+              "requires_review": true
+            }
+          ],
+          "action_kinds": [
+            "read_error"
+          ]
+        }
+      ]
+    }
+  ]
+}
