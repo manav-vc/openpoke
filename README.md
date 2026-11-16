@@ -10,13 +10,6 @@ An [OpenPoke](https://github.com/shlokkhemani/openpoke) fork that keeps growing 
 
 [Editable presentation](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) · [Local Excalidraw presentation](docs/diagrams/openpoke-overload-solutions.excalidraw) · [Mermaid sequence](docs/diagrams/openpoke-overload-sequence.mmd)
 
-<details>
-<summary>View the full local presentation — 11 slides</summary>
-
-![OpenPoke presentation with architecture, design decisions, three evidence charts, and validation status](docs/diagrams/openpoke-overload-solutions.svg)
-
-</details>
-
 EA records, keyword search (SQLite FTS5), embeddings, source history, and the queue live in SQLite. No separate vector database is needed.
 
 ## The problems, changes, and why
