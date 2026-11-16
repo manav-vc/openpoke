@@ -1,12 +1,13 @@
 # Local diagrams and presentation
 
-The README embeds the overview image below. The editable local presentation contains **11 frames** with native Excalidraw shapes, arrows, text, and charts.
+The README embeds the exact architecture PNG supplied by the author, shown below. The editable local presentation contains **11 frames** with native Excalidraw shapes, arrows, text, and charts.
 
-![Architecture overview from the local presentation](openpoke-overload-overview.svg)
+![Interaction Agent architecture supplied by the author](openpoke-architecture.png)
 
 | File | Purpose |
 | --- | --- |
-| [Overview image](openpoke-overload-overview.svg) | First presentation frame, embedded in the main README. |
+| [Architecture image](openpoke-architecture.png) | Exact original PNG, embedded in the main README without redrawing or resizing. |
+| [Frame 1 preview](openpoke-overload-overview.svg) | Generated preview of the local presentation's first frame. |
 | [Full presentation image](openpoke-overload-solutions.svg) | All 11 local frames, including the three evidence charts. |
 | [Editable presentation](openpoke-overload-solutions.excalidraw) | Import into Excalidraw to edit native components. Speaker notes are stored in each frame's `customData.speakerNotes`. |
 | [Sequence source](openpoke-overload-sequence.mmd) | Exact saved Mermaid source retrieved November 16, 2026. |
@@ -22,7 +23,7 @@ Edit the local `.excalidraw` file, then run:
 node docs/diagrams/render-presentation.mjs
 ```
 
-The overview renders frame 1; the full image renders every frame. Text remains vector text, with a system-font fallback. The images contain no external resources or scripts. The older PNG board preview has been replaced by these scalable images.
+The supplied architecture PNG is preserved as-is and is not regenerated. The SVG overview renders frame 1; the full SVG image renders every frame. Text remains vector text, with a system-font fallback. The images contain no external resources or scripts. The older PNG board preview has been replaced by these scalable images.
 
 ## Configuration and evidence
 

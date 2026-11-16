@@ -6,7 +6,7 @@ An [OpenPoke](https://github.com/shlokkhemani/openpoke) fork that keeps growing 
 
 ## Architecture and diagrams
 
-![OpenPoke presentation diagram: bounded discovery and memory, a shared execution queue, and grouped results](docs/diagrams/openpoke-overload-overview.svg)
+![Interaction Agent architecture: EA registry and search, persistent queue, Execution Agents, and EA memory and sources](docs/diagrams/openpoke-architecture.png)
 
 [Editable presentation](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) · [Local Excalidraw presentation](docs/diagrams/openpoke-overload-solutions.excalidraw) · [Mermaid sequence](docs/diagrams/openpoke-overload-sequence.mmd)
 
