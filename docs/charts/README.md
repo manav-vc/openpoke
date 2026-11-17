@@ -2,6 +2,8 @@
 
 The updated images use the saved November 16, 2026 evaluation results. Each PNG is 2560 × 1440 and can be inserted directly into slides or shared from GitHub.
 
+The [Excalidraw board](https://link.excalidraw.com/l/2C1urTzZVM0/2hmrnSZUcZZ) and its existing presentation use the same results as editable charts. Slides 8–12 cover retrieval, memory, admission, workflow success and the token/latency tradeoff. The tradeoff slide indexes both metrics to upstream = 100; its caption and notes retain the actual token and latency values.
+
 | Updated image | What it shows | Evidence |
 | --- | --- | --- |
 | [Solution overview](evaluation-overview.png) | Bounded discovery, source-grounded memory and controlled execution | [Evaluation results](../evaluation/README.md) |
