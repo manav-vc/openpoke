@@ -198,8 +198,8 @@
     {
       "id": "BAdxfjhhI5aWyj1zbZ0hS",
       "type": "rectangle",
-      "x": 64,
-      "y": 1100,
+      "x": 67.93062061551552,
+      "y": 1094.1040690767268,
       "width": 652,
       "height": 480,
       "strokeColor": "#6741d9",
@@ -214,8 +214,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 792968863,
-      "version": 135,
-      "versionNonce": 788829483,
+      "version": 239,
+      "versionNonce": 1808547066,
       "index": "bDt",
       "isDeleted": false,
       "groupIds": [
@@ -223,7 +223,7 @@
       ],
       "frameId": null,
       "boundElements": [],
-      "updated": 1794709874294,
+      "updated": 1794881006783,
       "created": 1794695682806,
       "link": null,
       "locked": false
@@ -231,8 +231,8 @@
     {
       "id": "RhTAiFWKS-Mv6mfrlNxrB",
       "type": "rectangle",
-      "x": 84,
-      "y": 1118,
+      "x": 87.93062061551552,
+      "y": 1112.1040690767268,
       "width": 40,
       "height": 36,
       "strokeColor": "#6741d9",
@@ -247,8 +247,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 246452927,
-      "version": 136,
-      "versionNonce": 555411205,
+      "version": 240,
+      "versionNonce": 1072598458,
       "index": "bDt4",
       "isDeleted": false,
       "groupIds": [
@@ -261,7 +261,7 @@
           "type": "text"
         }
       ],
-      "updated": 1794709874294,
+      "updated": 1794881006783,
       "created": 1794695682806,
       "link": null,
       "locked": false
@@ -269,8 +269,8 @@
     {
       "id": "Xd20e4-R3mS8COIex_bZe",
       "type": "text",
-      "x": 93.088,
-      "y": 1126,
+      "x": 97.01862061551552,
+      "y": 1120.1040690767268,
       "width": 21.824,
       "height": 20,
       "strokeColor": "#6741d9",
@@ -283,14 +283,14 @@
       "opacity": 100,
       "angle": 0,
       "seed": 1903219395,
-      "version": 119,
-      "versionNonce": 26106163,
+      "version": 223,
+      "versionNonce": 621332090,
       "index": "bDt6",
       "isDeleted": false,
       "groupIds": [],
       "frameId": null,
       "boundElements": [],
-      "updated": 1794766438412,
+      "updated": 1794881006783,
       "created": 1794695682843,
       "link": null,
       "locked": false,
@@ -309,8 +309,8 @@
     {
       "id": "PIDodTfxMEF_wPGTN0f1k",
       "type": "text",
-      "x": 136,
-      "y": 1120,
+      "x": 139.93062061551552,
+      "y": 1114.1040690767268,
       "width": 555,
       "height": 30,
       "strokeColor": "#1e1e1e",
@@ -325,8 +325,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 1840112351,
-      "version": 134,
-      "versionNonce": 1068414923,
+      "version": 238,
+      "versionNonce": 64874298,
       "index": "bDt8",
       "isDeleted": false,
       "groupIds": [
@@ -334,7 +334,7 @@
       ],
       "frameId": null,
       "boundElements": [],
-      "updated": 1794709874294,
+      "updated": 1794881006783,
       "created": 1794695682808,
       "link": null,
       "locked": false,
@@ -353,8 +353,8 @@
     {
       "id": "ShgsUGTWDhIyIuhlthoub",
       "type": "text",
-      "x": 86,
-      "y": 1172,
+      "x": 89.93062061551552,
+      "y": 1166.1040690767268,
       "width": 600,
       "height": 16.25,
       "strokeColor": "#6741d9",
@@ -369,8 +369,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 2093756159,
-      "version": 133,
-      "versionNonce": 1636941413,
+      "version": 237,
+      "versionNonce": 886108154,
       "index": "bDtG",
       "isDeleted": false,
       "groupIds": [
@@ -378,7 +378,7 @@
       ],
       "frameId": null,
       "boundElements": [],
-      "updated": 1794709874294,
+      "updated": 1794881006783,
       "created": 1794695682808,
       "link": null,
       "locked": false,
@@ -397,8 +397,8 @@
     {
       "id": "e9Mdk49rmvg_tMQZdOvRm",
       "type": "text",
-      "x": 86,
-      "y": 1194,
+      "x": 89.93062061551552,
+      "y": 1188.1040690767268,
       "width": 608,
       "height": 47.5,
       "strokeColor": "#1e1e1e",
@@ -413,8 +413,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 109836063,
-      "version": 133,
-      "versionNonce": 138118763,
+      "version": 237,
+      "versionNonce": 199549114,
       "index": "bDtO",
       "isDeleted": false,
       "groupIds": [
@@ -422,7 +422,7 @@
       ],
       "frameId": null,
       "boundElements": [],
-      "updated": 1794709874294,
+      "updated": 1794881006783,
       "created": 1794695682809,
       "link": null,
       "locked": false,
@@ -4341,8 +4341,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 1525470815,
-      "version": 38,
-      "versionNonce": 869018277,
+      "version": 39,
+      "versionNonce": 1519492599,
       "index": "bG7",
       "isDeleted": false,
       "groupIds": [
@@ -4357,11 +4357,11 @@
       "fontSize": 28,
       "baseFontSize": null,
       "fontFamily": 5,
-      "text": "Recorded evidence and practical limits",
+      "text": "Recorded results and further work",
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Recorded evidence and practical limits",
+      "originalText": "Recorded results and further work",
       "autoResize": false,
       "lineHeight": 1.25,
       "labelPosition": null
@@ -4473,8 +4473,8 @@
       "opacity": 100,
       "angle": 0,
       "seed": 1678454495,
-      "version": 38,
-      "versionNonce": 774179226,
+      "version": 39,
+      "versionNonce": 123248889,
       "index": "bGB",
       "isDeleted": false,
       "groupIds": [
@@ -4489,55 +4489,11 @@
       "fontSize": 15,
       "baseFontSize": null,
       "fontFamily": 5,
-      "text": "INTERPRETATION AND LIMITS",
+      "text": "ADDITIONAL FIXES AND FUTURE WORK",
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "INTERPRETATION AND LIMITS",
-      "autoResize": false,
-      "lineHeight": 1.25,
-      "labelPosition": null
-    },
-    {
-      "id": "Ju46LQmZ4MaFGVNtVkK0R",
-      "type": "text",
-      "x": 790,
-      "y": 2261,
-      "width": 660,
-      "height": 175,
-      "strokeColor": "#1e1e1e",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roundness": {
-        "type": 2
-      },
-      "roughness": 2,
-      "opacity": 100,
-      "angle": 0,
-      "seed": 1369438975,
-      "version": 40,
-      "versionNonce": 2042459398,
-      "index": "bGC",
-      "isDeleted": false,
-      "groupIds": [
-        "3sraj9BKETsOuyPFWI2wu"
-      ],
-      "frameId": null,
-      "boundElements": [],
-      "updated": 1794707571070,
-      "created": 1794695682841,
-      "link": null,
-      "locked": false,
-      "fontSize": 20,
-      "baseFontSize": null,
-      "fontFamily": 5,
-      "text": "Real models with synthetic email tools.\nSemantic-only tied hybrid in the dense corpus.\nMemory recall retrieves and cites original records;\nsummary-only recall is not measured.\nFork prompt tokens: 30.9% fewer;\nmedian latency: 22.03s vs 15.22s upstream.\nSmall authored suite; one backend process.",
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "Real models with synthetic email tools.\nSemantic-only tied hybrid in the dense corpus.\nMemory recall retrieves and cites original records;\nsummary-only recall is not measured.\nFork prompt tokens: 30.9% fewer;\nmedian latency: 22.03s vs 15.22s upstream.\nSmall authored suite; one backend process.",
+      "originalText": "ADDITIONAL FIXES AND FUTURE WORK",
       "autoResize": false,
       "lineHeight": 1.25,
       "labelPosition": null
@@ -5355,8 +5311,8 @@
       "index": "bGI",
       "roundness": null,
       "seed": 1942190232,
-      "version": 2,
-      "versionNonce": 918551784,
+      "version": 3,
+      "versionNonce": 1055991383,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794772188,
@@ -5371,7 +5327,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- OpenPoke separates the Interaction Agent, which talks to the user, from saved Execution Agents, which retain assigned work and history.\n- I focused on the ways saved agents, execution history, and concurrent work grow independently.\n- This walkthrough covers the changes, recorded evidence, and the remaining validation work.\n- The original solution board remains on this canvas as the detailed reference."
+        "presenterNotes": "- OpenPoke separates the Interaction Agent, which talks to the user, from saved Execution Agents, which retain assigned work and history.\n- I focused on the ways saved agents, execution history, and concurrent work grow independently.\n- This walkthrough covers the implemented changes and the recorded results.\n- The original solution board remains on this canvas as the detailed reference."
       },
       "name": "01 — OpenPoke: Controlling agent overload"
     },
@@ -10756,8 +10712,8 @@
       "index": "bIw",
       "roundness": null,
       "seed": 404072295,
-      "version": 3,
-      "versionNonce": 1693837672,
+      "version": 4,
+      "versionNonce": 1030296441,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794897834,
@@ -10772,7 +10728,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- The queue persists jobs before dispatch. The oldest runnable work starts first, while per-EA serialization avoids concurrent state updates.\n- Each result group collects related EA outcomes. Workers may start before submissions finish, but delivery waits for the full group.\n- A failed or rejected job still counts as an outcome, so the IA can handle the group coherently.\n- Defaults also cap each initiating request at five follow-up stages and twenty EA job submissions.\n- The queue supports one backend process. Multi-process dispatch would need additional coordination."
+        "presenterNotes": "- The queue persists jobs before dispatch. The oldest runnable work starts first, while per-EA serialization avoids concurrent state updates.\n- Each result group collects related EA outcomes. Workers may start before submissions finish, but delivery waits for the full group.\n- A failed or rejected job still counts as an outcome, so the IA can handle the group coherently.\n- Defaults also cap each initiating request at five follow-up stages and twenty EA job submissions."
       },
       "name": "06 — Queue and outcome delivery"
     },
@@ -10796,8 +10752,8 @@
       "index": "bJO",
       "roundness": null,
       "seed": 1823222055,
-      "version": 2,
-      "versionNonce": 576954569,
+      "version": 3,
+      "versionNonce": 2013183127,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794897882,
@@ -10812,7 +10768,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- A timeout can occur after an external action happened but before the final result was recorded. Blind replay could duplicate that action.\n- Interrupted writes or unknown tools put the EA behind a review gate until someone inspects the original tool state and resolves the interruption.\n- Archival requires explicit completion and thirty inactive days. Pending work or approvals, active Triggers, queued/running jobs, ambiguous legacy history, and unresolved interruptions block it.\n- Stable operation keys deduplicate submissions and replies. Restart recovery resumes unexpired queued jobs.\n- The next slides show recorded evidence, with the limits of each evaluation visible."
+        "presenterNotes": "- A timeout can occur after an external action happened but before the final result was recorded. Blind replay could duplicate that action.\n- Interrupted writes or unknown tools put the EA behind a review gate until someone inspects the original tool state and resolves the interruption.\n- Archival requires explicit completion and thirty inactive days. Pending work or approvals, active Triggers, queued/running jobs, ambiguous legacy history, and unresolved interruptions block it.\n- Stable operation keys deduplicate submissions and replies. Restart recovery resumes unexpired queued jobs.\n- The next slides show how the changes were checked and the recorded results."
       },
       "name": "07 — Recovery and lifecycle"
     },
@@ -12297,8 +12253,8 @@
       "index": "bK0",
       "roundness": null,
       "seed": 1690695207,
-      "version": 8,
-      "versionNonce": 975023578,
+      "version": 9,
+      "versionNonce": 432684121,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794897957,
@@ -12313,7 +12269,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- November 16, 2026: real openai/text-embedding-3-small embeddings over 288 similar saved invoice EAs (12 contacts, 24 invoices each).\n- Hybrid recall@10/@30: 34/34 and 34/34. Keyword-only: 24/34 and 34/34. Semantic-only: 34/34 and 34/34.\n- Twelve exact-identifier cases bypass ranking; both ambiguity cases are scored separately. All modes share the same production identity guards.\n- Three full IA/EA owner selections and one clarification passed. The original 3/4 score remains; 4/4 is a numeric-format rescore with no new model calls.\n- No measured hybrid advantage over semantic-only in this corpus. Real Gmail and production reliability are not evaluated.\n- Sources: docs/evaluation/retrieval-hard-results.json and docs/evaluation/README.md."
+        "presenterNotes": "- November 16, 2026: real openai/text-embedding-3-small embeddings over 288 similar saved invoice EAs (12 contacts, 24 invoices each).\n- Hybrid recall@10/@30: 34/34 and 34/34. Keyword-only: 24/34 and 34/34. Semantic-only: 34/34 and 34/34.\n- Twelve exact-identifier cases bypass ranking; both ambiguity cases are scored separately. All modes share the same production identity guards.\n- Three full IA/EA owner selections and one clarification passed. The original 3/4 score remains; 4/4 is a numeric-format rescore with no new model calls.\n- Semantic-only matched hybrid in this corpus; the chart keeps that comparison visible.\n- Sources: docs/evaluation/retrieval-hard-results.json and docs/evaluation/README.md."
       },
       "name": "08 — Retrieval quality"
     },
@@ -12377,8 +12333,8 @@
       "index": "bLD",
       "roundness": null,
       "seed": 1404040007,
-      "version": 8,
-      "versionNonce": 725379974,
+      "version": 9,
+      "versionNonce": 1816727991,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794898066,
@@ -12393,7 +12349,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- November 16 paired comparison: identical anthropic/claude-sonnet-5.5 model, nine scenarios / ten user turns, same saved tasks and synthetic mailbox.\n- Shared-contract outcomes: upstream 6/10; fork 10/10. All provider requests completed successfully. Fork also passes native pending-approval and exact-preview checks.\n- Upstream's four failures differ: two interaction loops exhaust the native limit after correct drafts, one ambiguous request dispatches before clarification, one correct IA text preview is not an EA-owned persisted email-tool draft.\n- Both implementations reused the correct existing owner in 8/8 applicable turns; unexpected ambiguous dispatch is separate from wrong reuse of a specified invoice.\n- The original 9/10 outage run stays visible. Its false needs_review recovery lock is fixed and the latest unavailable-email case passes normally.\n- Small authored suite with synthetic email tools, not real Gmail or production reliability. Source: docs/evaluation/upstream-comparison.json and docs/evaluation/README.md."
+        "presenterNotes": "- November 16 paired comparison: identical anthropic/claude-sonnet-5.5 model, nine scenarios / ten user turns, same saved tasks and synthetic mailbox.\n- Shared-contract outcomes: upstream 6/10; fork 10/10. All provider requests completed successfully. Fork also passes native pending-approval and exact-preview checks.\n- Upstream's four failures differ: two interaction loops exhaust the native limit after correct drafts, one ambiguous request dispatches before clarification, one correct IA text preview is not an EA-owned persisted email-tool draft.\n- Both implementations reused the correct existing owner in 8/8 applicable turns; unexpected ambiguous dispatch is separate from wrong reuse of a specified invoice.\n- The original 9/10 outage run stays visible. Its false needs_review recovery lock is fixed and the latest unavailable-email case passes normally.\n- Source: docs/evaluation/upstream-comparison.json and docs/evaluation/README.md."
       },
       "name": "11 — Upstream versus fork workflows"
     },
@@ -12417,8 +12373,8 @@
       "index": "bLv",
       "roundness": null,
       "seed": 498107943,
-      "version": 7,
-      "versionNonce": 95844314,
+      "version": 8,
+      "versionNonce": 634603833,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1794794898130,
@@ -12433,7 +12389,7 @@
           "accent": "violet",
           "decor": true
         },
-        "presenterNotes": "- One paired ten-turn run: fork passes 10/10 shared workflow checks; upstream passes 6/10. All provider requests completed successfully.\n- Provider-reported chat prompt tokens across all IA/EA calls: upstream 570,500 and fork 394,128, or 30.9% fewer. Upstream's unsuccessful loops are included.\n- Median workflow latency: 15.218195s upstream and 22.02761s fork, an increase of 6.809415s. This chart normalizes each metric to its upstream value = 100; it does not mix seconds and tokens on one raw axis.\n- Latency excludes embedding preindex and refresh. Costs including indexing were US$1.294630 upstream and US$0.917452 fork.\n- Observations from a small authored synthetic-mailbox suite, not a general speed, cost or production reliability claim. Real Gmail and nested search-model quality remain unvalidated; one backend process is supported.\n- Source: docs/evaluation/upstream-comparison.json. Original failed and credit-blocked attempts remain preserved."
+        "presenterNotes": "- One paired ten-turn run: fork passes 10/10 shared workflow checks; upstream passes 6/10. All provider requests completed successfully.\n- Provider-reported chat prompt tokens across all IA/EA calls: upstream 570,500 and fork 394,128, or 30.9% fewer. Upstream's unsuccessful loops are included.\n- Median workflow latency: 15.218195s upstream and 22.02761s fork, an increase of 6.809415s. This chart normalizes each metric to its upstream value = 100; it does not mix seconds and tokens on one raw axis.\n- Latency excludes embedding preindex and refresh. Costs including indexing were US$1.294630 upstream and US$0.917452 fork.\n- Source: docs/evaluation/upstream-comparison.json. Original failed and credit-blocked attempts remain preserved."
       },
       "name": "12 — Token and latency tradeoff"
     },
@@ -31092,8 +31048,41 @@
       "startArrowhead": null,
       "endArrowhead": null,
       "polygon": false
+    },
+    {
+      "id": "sjHO1sp8lhof2xLCzBd8-",
+      "type": "frame",
+      "x": 19596,
+      "y": 2988,
+      "width": 1280,
+      "height": 720,
+      "angle": 0,
+      "strokeColor": "#1e1e1e",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "bZY",
+      "roundness": null,
+      "seed": 956776284,
+      "version": 2,
+      "versionNonce": 764671076,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1794881519161,
+      "created": 1794881519161,
+      "link": null,
+      "locked": false,
+      "customData": {
+        "slidesOrder": 12
+      },
+      "name": "13 — Additional fixes and future work"
     }
   ],
-  "sceneVersion": "7e8a1c82",
+  "sceneVersion": "56607850",
   "files": {}
 }
