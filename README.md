@@ -34,7 +34,7 @@ EA records, search data, execution memory, and the queue use SQLite. No separate
 | --- | --- | --- |
 | **IA context:** loading the full EA roster bloats its context window. | Use recent EA links or keyword + semantic search: **30 candidates per turn, 10 at a time**. Budget chat history. | Keep relevant context in the prompt; keep the directory in storage. |
 | **EA history:** loading an EA's entire history bloats its context window. | Budget saved state, an earlier-work summary, and recent history. Retrieve exact source records on demand. | Keep each run's context manageable while preserving original details. |
-| **Execution overload:** too many simultaneous EA runs overload resources. | Share one persistent queue across IA requests and Triggers: **4 running, 100 waiting, 1 running per EA**. | Bound resource use and prevent concurrent updates to the same EA. |
+| **Execution overload:** too many simultaneous EA runs overload resources. | Share one persistent queue across IA requests and Triggers: **100 running, 100 waiting, 1 running per EA**. | Allow independent tasks to run in parallel while bounding resource use and preventing concurrent updates to the same EA. |
 
 ## Keeping work consistent
 
@@ -47,17 +47,33 @@ Limits are configurable defaults; token budgets are estimates with a safety marg
 
 ## Validation
 
-[Three before/after charts](docs/charts/README.md) show roster exposure, history context growth, and controlled queue admission, with source data and reproduction commands.
+All **196 automated pytest cases run offline**. Counts below group test files by their primary purpose; some checks also cover other solutions.
 
-Recorded offline results, **November 14, 2026**:
+| Solution or supporting area | Test cases | What is checked |
+| --- | ---: | --- |
+| **IA context: bounded discovery and agent reuse** | **39** | Hybrid retrieval, candidate limits, identity conflicts and clarification. [Retrieval](tests/test_retrieval.py), [routing](tests/test_interaction_routing.py). |
+| **EA history: bounded memory and source retrieval** | **13** | Token budgets, compaction, original-record preservation and history retrieval. [Budgets](tests/test_budgets.py), [registry/history](tests/test_registry_history.py). |
+| **Execution overload: persistent queue and recovery** | **76** | Concurrency limits, per-agent serialization, ordering, timeouts, retries and uncertain actions. [Queue](tests/test_execution_queue.py), [execution runtime](tests/test_execution_runtime.py). |
+| **Shared integration and approval safety** | **20** | Complete agent flows, exact draft presentation and approval preservation. [Integration](tests/test_runtime_integration.py), [draft presentation](tests/test_draft_presentation.py). |
+| **Evaluation infrastructure** | **48** | Evaluation fixtures, scoring, spending limits, comparison and reporting. [Evaluation test inventory](tests/README.md). |
+| **Total** | **196** | |
 
-- **129 automated tests passed.**
-- Expected EAs appeared in the top 30 in **all 60 retrieval cases**, with no identity-conflict or ambiguity-guard failures.
+The evaluation suites define **114 cases/turns**: **60** original retrieval cases, **36** dense retrieval queries, **4** dense routing turns, **4** memory probes and **10** end-to-end workflow turns. These are suite-level cases, not 114 additional pytest tests. Upstream/fork comparisons and retrieval ablations reuse the same cases; scale benchmarks and simulated jobs are not counted as additional cases.
+
+[Updated evaluation charts](docs/charts/README.md) show the three solutions, workflow success, retrieval quality, memory preservation and the token/latency tradeoff. The same page includes the original roster-growth, history-growth and queue-admission measurements.
+
+Recorded checks, **November 16, 2026**:
+
+- **196 automated tests passed.**
+- The controlled real-model comparison passed **10/10 workflow turns in the fork versus 6/10 upstream**. The fork used **30.9% fewer chat prompt tokens**, with a higher median latency (**22.03 s versus 15.22 s**); the [results](docs/evaluation/README.md) explain the contract and individual failures.
+- With real embeddings and **288 similar invoice agents**, hybrid retrieval found **34/34 targets at both @10 and @30**. Keyword-only found **24/34 at @10** and **34/34 at @30**; semantic-only matched hybrid in this corpus.
+- Production IA routing over that dense corpus passed **3/3 owner selections and 1/1 clarification**. The saved original 3/4 score and disclosed numeric-format rescore to 4/4 are both visible.
+- After real summaries of **72 exchanges**, **4/4 memory probes** passed exact fact, source citation and approval checks. All **215 source events** remained available.
 - Candidate pools stayed at **30** with both **1,000 and 10,000 saved EAs**.
 
-These offline checks use stand-ins for embeddings, model responses, and Gmail.
+Automated tests and scale benchmarks use offline stand-ins. The dense retrieval, routing and memory checks use real models with synthetic email records.
 
-[Recorded real-model workflow results](docs/evaluation/README.md), **November 15, 2026**: the latest full run passed **9/10 user turns** across nine scenarios; the earlier full run passed **10/10**. Both selected the correct EA in **9/9 applicable turns** and passed **6/6 draft workflows**, with no duplicate EAs or unapproved send attempts. The latest run failed the unavailable-email case because its job ended as `interrupted`; it correctly reported the outage without inventing a due date.
+[Recorded real-model results and limitations](docs/evaluation/README.md) preserve the original **10/10 and 9/10** workflow runs alongside the new results. The original unavailable-email failure exposed a false recovery lock that is now fixed and covered by regressions and the latest **10/10** live run. The [implementation rationale](docs/agent-optimization.md) explains retrieval alternatives, persistent queue tradeoffs and configurable limits.
 
 These runs use real chat models and embeddings with synthetic email tools. See the [evaluation guide](tests/README.md#real-model-workflows) to reproduce them. Real Gmail workflows remain unvalidated.
 

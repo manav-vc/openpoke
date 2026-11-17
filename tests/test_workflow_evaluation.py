@@ -215,6 +215,30 @@ def test_reported_usage_replaces_reservation_without_inventing_missing_cost():
     assert ledger.summary()["provider_reported_cost_usd"] == .03
 
 
+def test_payment_required_stops_other_cases_without_repeated_network_calls(monkeypatch, tmp_path):
+    import asyncio
+    import httpx
+    attempts = []
+    async def post(client, url, **kwargs):
+        attempts.append(url)
+        return httpx.Response(402, request=httpx.Request("POST", url))
+    monkeypatch.setattr(httpx.AsyncClient, "post", post)
+    ledger = UsageLedger()
+    provider = LiveProvider("test-key", ledger, tmp_path / "calls.jsonl")
+    provider.prices["model"] = dict(prompt=.000001, completion=.000001, request=0)
+    async def evaluate():
+        payload = dict(model="model", messages=[dict(role="user", content="Synthetic request")])
+        with pytest.raises(httpx.HTTPStatusError):
+            await provider._request("chat", "/chat/completions", payload)
+        with pytest.raises(BudgetExceeded, match="HTTP 402"):
+            await provider._request("chat", "/chat/completions", payload)
+    asyncio.run(evaluate())
+    assert len(attempts) == 1
+    assert len(ledger.calls) == 1 and ledger.calls[0]["http_status"] == 402
+    assert ledger.calls[0]["usage"] is None
+    assert ledger.calls[0]["accounted_cost_usd"] == ledger.calls[0]["reserved_cost_usd"]
+
+
 def test_catalog_model_validation_and_prices_without_network(monkeypatch, tmp_path):
     import httpx
     catalog = {"chat": dict(id="chat", supported_parameters=["tools"],

@@ -22,6 +22,7 @@ yarn-error.log*
 
 # Python
 .venv/
+.pytest_cache/
 __pycache__/
 *.pyc
 
@@ -45,14 +46,11 @@ server/venv/
 server/repomix-output.txt
 server/plans/
 
-# Local graphify state; graph outputs remain part of the repository
-/graphify-out/cache/
-/graphify-out/backups/
-/graphify-out/memory/
-/graphify-out/reflections/
-/graphify-out/.graphify_python
-/graphify-out/.graphify_root
-/graphify-out/.graphify_learning.json
-/graphify-out/.vocab.txt
-/graphify-out/cost.json
-/graphify-out/manifest.json
+# Local analysis and browser-check artifacts
+/graphify-out/
+/.playwright/
+/.playwright-cli/
+/output/playwright/
+
+# Stray Next.js output at the repo root; the frontend lives in web/
+/next-env.d.ts

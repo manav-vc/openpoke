@@ -138,6 +138,61 @@ def test_uncertain_gmail_write_stops_model_loop_and_holds_followups(setup_runtim
     asyncio.run(scenario())
 
 
+@pytest.mark.parametrize("raise_read_error", [False, True])
+def test_handled_read_outage_cannot_interrupt_task_or_hold_followup(setup_runtime, monkeypatch, raise_read_error):
+    """Replay the live 9/10 failure: the model mislabeled a handled outage."""
+    async def scenario():
+        registry = setup_runtime
+        agent = registry.create_agent("Invoice INV-2200", "Find the invoice due date")
+        steps = [answer(calls=[tool("task_email_search", {"query": "INV-2200"})]),
+                 answer(calls=[tool("report_task_state", {"state": "needs_review",
+                     "summary": "Email service unavailable; due date could not be verified", "pending_work": False})]),
+                 answer("The due date could not be verified because the email service was unavailable."),
+                 answer(calls=[tool("report_task_state", {"state": "completed",
+                     "summary": "Follow-up completed", "pending_work": False})]),
+                 answer("Follow-up completed")]
+        async def llm(**kwargs):
+            return steps.pop(0)
+        monkeypatch.setattr(execution_module, "request_chat_completion", llm)
+        def unavailable(**kwargs):
+            if raise_read_error:
+                raise ConnectionError("Email service unavailable")
+            return {"error": "Email service unavailable"}
+        async def runner(job):
+            runtime = ExecutionAgentRuntime(agent_id=job["agent_id"], registry=registry,
+                request_id=job["request_id"], generation=job["generation"])
+            runtime.tool_registry["task_email_search"] = unavailable
+            return await runtime.execute(job["instructions"])
+        async def deliver(*args):
+            return {"success": True}
+        queue = ExecutionService(registry, runner=runner, delivery=deliver)
+        batch = queue.create_batch("outage-request")
+        outage = await queue.submit(agent["id"], "Read the due date; report an outage without guessing",
+                                   batch_id=batch["id"], request_id="read-outage")
+        followup = await queue.submit(agent["id"], "Continue the task",
+                                     batch_id=batch["id"], request_id="followup")
+        await queue.seal_batch(batch["id"])
+        await queue.start()
+        try:
+            result = await queue.wait_for_job(outage["id"], timeout=3)
+            assert result["status"] == "succeeded"
+            assert not result["result"]["requires_review"]
+            assert "could not be verified" in result["result"]["response"]
+            assert (await queue.wait_for_job(followup["id"], timeout=3))["status"] == "succeeded"
+            assert registry.get(agent["id"])["state"] == "completed"
+            with registry.connect() as conn:
+                events = conn.execute("SELECT id FROM events WHERE request_id='read-outage' AND kind='tool_result' ORDER BY id").fetchall()
+            history = execution_module.HistoryService(registry)
+            payloads = [history._payload(registry.get_event(row[0])) for row in events]
+            assert [p["tool"] for p in payloads] == ["task_email_search", "report_task_state"]
+            assert all(p["success"] is False for p in payloads)
+            assert payloads[1]["arguments"]["state"] == "needs_review"
+            assert "reserved for runtime-detected" in payloads[1]["result"]["error"]
+        finally:
+            await queue.stop()
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize("tool_name,expected", [
     ("task_email_search", "read"),
     ("gmail_get_contacts", "read"),

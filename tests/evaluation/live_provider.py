@@ -192,6 +192,11 @@ class LiveProvider:
                 response = await client.post(
                     BASE_URL + endpoint, headers={"Authorization": "Bearer " + self.api_key},
                     json=payload)
+            row["http_status"] = response.status_code
+            if response.status_code == 402:
+                # Retrying other scenarios cannot resolve an exhausted account.
+                # Retain this attempt's reservation and stop new billable calls.
+                self.ledger.stop_reason = "Provider credits unavailable (HTTP 402); further calls stopped"
             response.raise_for_status()
             result = response.json()
             if result.get("error"):

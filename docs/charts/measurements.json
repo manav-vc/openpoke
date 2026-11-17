@@ -99,65 +99,37 @@
     "points": [
       {
         "simulated_seconds": 0,
-        "upstream_running": 24,
-        "new_running": 4,
+        "upstream_running": 120,
+        "new_running": 100,
         "new_waiting": 20,
         "new_completed": 0
       },
       {
         "simulated_seconds": 1,
         "upstream_running": 0,
-        "new_running": 4,
-        "new_waiting": 16,
-        "new_completed": 4
+        "new_running": 20,
+        "new_waiting": 0,
+        "new_completed": 100
       },
       {
         "simulated_seconds": 2,
         "upstream_running": 0,
-        "new_running": 4,
-        "new_waiting": 12,
-        "new_completed": 8
-      },
-      {
-        "simulated_seconds": 3,
-        "upstream_running": 0,
-        "new_running": 4,
-        "new_waiting": 8,
-        "new_completed": 12
-      },
-      {
-        "simulated_seconds": 4,
-        "upstream_running": 0,
-        "new_running": 4,
-        "new_waiting": 4,
-        "new_completed": 16
-      },
-      {
-        "simulated_seconds": 5,
-        "upstream_running": 0,
-        "new_running": 4,
-        "new_waiting": 0,
-        "new_completed": 20
-      },
-      {
-        "simulated_seconds": 6,
-        "upstream_running": 0,
         "new_running": 0,
         "new_waiting": 0,
-        "new_completed": 24
+        "new_completed": 120
       }
     ],
-    "jobs": 24,
+    "jobs": 120,
     "job_duration_seconds": 1,
-    "max_concurrency": 4,
+    "max_concurrency": 100,
     "upstream_method": "Source-derived: each caller immediately awaits its own runtime; no global admission limit.",
-    "new_method": "Production submit() and _claim_next(); deterministic simulated completions; scheduler/model/network excluded.",
+    "new_method": "Production submit() and _claim_next() interleaved during arrival at simulated time zero; deterministic simulated completions; scheduler/model/network excluded.",
     "baseline_source_sha256": "461710468abedfee017c1240ece8231ecf9f56c6851d7e2be097ace91cf01c70"
   },
   "source_sha256": {
     "server/services/execution/history.py": "bb181f6657641b99a7e94f522ee1e7ea25354e3440a01851a4ff176ac5c6d2fb",
-    "server/services/execution/queue.py": "22a95a24a3ddd7ac994c51926e1c00cc416ac2df092184dcdb60178953a3b7da",
+    "server/services/execution/queue.py": "4a95bc46b10d7a73478745feecaa61858d0b240a46de9361fdad0df24f538b79",
     "server/services/execution/budgets.py": "bffdd270f0a0004a7ad66a8d037d68ff86e724a3063c8919fbcbfaf0b045b0bf",
-    "tests/evaluation/measure_overload.py": "c1a9db4209b2741798be0f676c106c6904796d094c27df52cc9bca402b7ab4b7"
+    "tests/evaluation/measure_overload.py": "550cd9dd2b47f4b0eb3e07493f2d1b6e7e1ec6c43612aafdb263beffb96bb9b3"
   }
 }

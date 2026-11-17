@@ -330,8 +330,8 @@ class ExecutionAgentRuntime:
         def schema(name, description, properties, required):
             return {"type": "function", "function": {"name": name, "description": description,
                     "parameters": {"type": "object", "properties": properties, "required": required, "additionalProperties": False}}}
-        return [schema("report_task_state", "Explicitly report the saved task goal state. Success of an invocation alone is not completion. Pending approval/reminders mean waiting.",
-                       {"state": {"type": "string", "enum": sorted(STATES)}, "summary": {"type": "string"},
+        return [schema("report_task_state", "Explicitly report the saved task goal state. Success of an invocation alone is not completion. Pending approval/reminders mean waiting. For an unavailable read tool use open or waiting_for_user; needs_review is reserved for runtime-detected uncertain external actions.",
+                       {"state": {"type": "string", "enum": sorted(STATES - {"needs_review"})}, "summary": {"type": "string"},
                         "pending_work": {"type": "boolean"}}, ["state", "summary", "pending_work"]),
                 schema("read_agent_history", "Retrieve bounded original source events for this task when exact details are needed.",
                        {"event_ids": {"type": "array", "items": {"type": "integer"}}, "query": {"type": "string"}, "cursor": {"type": "string"}}, []),
@@ -340,11 +340,18 @@ class ExecutionAgentRuntime:
                         "value": {"type": "string"}, "source_event_id": {"type": "integer"}}, ["kind", "value", "source_event_id"])]
 
     def _report_state(self, state: str, summary: str, pending_work: bool) -> dict:
+        # A model's request for human attention is not evidence that an external
+        # write may have happened. Only runtime effect tracking can establish
+        # that recovery condition; otherwise a handled read failure would block
+        # this task's queue as an unresolved interrupted execution.
+        if state == "needs_review":
+            raise ValueError("needs_review is reserved for runtime-detected uncertain external actions. "
+                             "Use open or waiting_for_user for missing information or an unavailable read tool.")
         if state not in STATES:
             raise ValueError("Invalid task state")
         self._reported_state, self._reported_pending_work = state, bool(pending_work)
         self.task_state, self.task_summary, self.pending_work = state, summary, bool(pending_work)
-        if self._approval_pending and state != "needs_review":
+        if self._approval_pending:
             self.task_state, self.pending_work = "waiting_for_user", True
         elif state == "completed" and pending_work:
             self.task_state = "waiting_for_user"

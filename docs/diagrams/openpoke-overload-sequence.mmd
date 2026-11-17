@@ -63,8 +63,8 @@ sequenceDiagram
             end
         end
         I->>Q: Seal request group when submissions finish
-        Note over Q,W: Workers may start before sealing; sealing gates final delivery.<br/>At most 4 active jobs, one per task; start oldest runnable work.<br/>Expire after 5 minutes waiting; runtime timeout is 300 seconds.
-        loop Accepted jobs; up to 4 workers run in parallel
+        Note over Q,W: Workers may start before sealing; sealing gates final delivery.<br/>At most 100 active jobs, one per task; start oldest runnable work.<br/>Expire after 5 minutes waiting; runtime timeout is 300 seconds.
+        loop Accepted jobs; up to 100 workers run in parallel
             Q->>W: Claim job when a worker slot and task are free
             W->>S: Load bounded task history
             S-->>W: State, summary and recent complete exchanges<br/>within 8,000 estimated history tokens

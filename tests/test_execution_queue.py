@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
+from server.config import Settings
 from server.services.execution.queue import ExecutionService
 from server.services.execution.registry import AgentRegistry
 
@@ -23,7 +24,7 @@ class ExecutionQueueTests(unittest.IsolatedAsyncioTestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.registry = AgentRegistry(Path(self.temp.name) / "agents.db")
         self.agents = [self.registry.create_agent(f"Agent {i}", f"Task {i}") for i in range(6)]
-        self.settings = SimpleNamespace(agent_max_concurrency=4, agent_queue_capacity=100,
+        self.settings = SimpleNamespace(agent_max_concurrency=Settings.model_fields["agent_max_concurrency"].default, agent_queue_capacity=100,
             agent_queue_wait_seconds=300, agent_execution_timeout_seconds=90,
             agent_shutdown_seconds=0.01, agent_max_followup_stages=5, agent_max_submissions=20)
         self.services = []
@@ -89,6 +90,7 @@ class ExecutionQueueTests(unittest.IsolatedAsyncioTestCase):
         await until(lambda: len(self.deliveries) == 1)
 
     async def test_global_limit_is_shared_and_never_exceeded(self):
+        self.settings.agent_max_concurrency = 4
         release = asyncio.Event()
         active = peak = 0
         async def runner(job):
@@ -109,6 +111,56 @@ class ExecutionQueueTests(unittest.IsolatedAsyncioTestCase):
         release.set()
         await until(lambda: len(self.deliveries) == 1)
         self.assertEqual(peak, 4)
+
+    async def test_default_runs_100_distinct_agents_and_serializes_each_agent(self):
+        self.assertEqual(self.settings.agent_max_concurrency, 100)
+        release = asyncio.Event()
+        active_by_agent = {}
+        peak = 0
+        started = []
+
+        async def runner(job):
+            nonlocal peak
+            agent_id = job["agent_id"]
+            active_by_agent[agent_id] = active_by_agent.get(agent_id, 0) + 1
+            self.assertEqual(active_by_agent[agent_id], 1)
+            peak = max(peak, sum(active_by_agent.values()))
+            started.append(job["request_id"])
+            await release.wait()
+            active_by_agent[agent_id] -= 1
+            return {"success": True}
+
+        self.agents.extend(self.registry.create_agent(f"Burst agent {i}", f"Burst task {i}")
+                           for i in range(6, 101))
+        service = self.service(runner=runner)
+        batches = [service.create_batch(f"burst-batch:{i}") for i in range(5)]
+        for i in range(100):
+            batch, job = await self.submit(service, agent=i, request=f"burst:{i}", batch=batches[i // 20])
+            self.assertEqual(job["status"], "queued")
+        for batch in batches:
+            await service.seal_batch(batch["id"])
+        await service.start()
+        await until(lambda: len(started) == 100, timeout=10)
+        same_batch, same_ea = await self.submit(service, agent=0, request="same-ea-followup")
+        extra_batch, extra_ea = await self.submit(service, agent=100, request="overflow-ea")
+        await service.seal_batch(same_batch["id"])
+        await service.seal_batch(extra_batch["id"])
+        # Check both scheduler worker accounting and transactional admission.
+        await service._tick()
+        self.assertEqual(len(service._workers), 100)
+        self.assertIsNone(service._claim_next())
+        self.assertEqual(service.job_status(same_ea["id"])["status"], "queued")
+        self.assertEqual(service.job_status(extra_ea["id"])["status"], "queued")
+        release.set()
+        await service.wait_for_idle(timeout=20)
+        self.assertEqual(peak, 100)
+        self.assertEqual(len(started), 102)
+        self.assertLess(started.index("burst:0"), started.index("same-ea-followup"))
+        self.assertTrue(all(value == 0 for value in active_by_agent.values()))
+        self.assertTrue(all(service.job_status(job_id)["status"] == "succeeded"
+                            for job_id in (same_ea["id"], extra_ea["id"])))
+        self.assertTrue(all(job["status"] == "succeeded"
+                            for batch in batches for job in service.batch_jobs(batch["id"])))
 
     async def test_queue_full_is_terminal_and_does_not_stick_group(self):
         self.settings.agent_queue_capacity = 1

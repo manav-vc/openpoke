@@ -1,0 +1,41 @@
+{
+  "version": "near-collision-v1",
+  "description": "Authored dense invoice corpus. Every record is a plausible competing saved task; no unrelated repeated noise. Labels are used only by the scorer.",
+  "contacts": [
+    ["Sarah Patel", "Acme", "sarah@acme.example"],
+    ["Maya Chen", "Beta", "maya@beta.example"],
+    ["Noor Ali", "Cedar", "noor@cedar.example"],
+    ["Kenji Mori", "Atlas", "kenji@atlas.example"],
+    ["Jules Martin", "Orbit", "jules@orbit.example"],
+    ["Priya Shah", "Delta", "priya@delta.example"],
+    ["Morgan Lee", "Harbor", "morgan@harbor.example"],
+    ["Alex Kim", "Summit", "alex@summit.example"],
+    ["Riley Jones", "Pine", "riley@pine.example"],
+    ["Sam Taylor", "Birch", "sam@birch.example"],
+    ["Robin Singh", "Maple", "robin@maple.example"],
+    ["Casey Brown", "Oak", "casey@oak.example"]
+  ],
+  "services": [
+    ["warehouse conveyor servicing", "care of the distribution centre's moving belts"],
+    ["forklift battery replacement", "new power packs for the lifting trucks"],
+    ["rooftop ventilation repair", "fixing the building's air circulation equipment"],
+    ["employee travel reimbursement", "repaying staff for their business journeys"],
+    ["supplier security deposit refund", "return of the vendor's refundable guarantee"],
+    ["ocean freight customs clearance", "border paperwork for the cargo arriving by sea"],
+    ["refrigeration compressor overhaul", "rebuilding the motor in the cold storage system"],
+    ["website accessibility audit", "checking whether disabled visitors can use the company site"],
+    ["fire suppression inspection", "certifying the sprinkler and extinguishing equipment"],
+    ["leased printer termination fee", "cost of ending the rented copier contract"],
+    ["solar inverter warranty claim", "recovering the cost of the failed photovoltaic converter"],
+    ["conference catering cancellation", "refunding meals for the cancelled business gathering"]
+  ],
+  "periods": [["January", "winter"], ["July", "summer"]],
+  "changed_keys": ["contact-0-service-7-period-1", "contact-1-service-4-period-0"],
+  "archived_keys": ["contact-2-service-10-period-0", "contact-3-service-9-period-1", "contact-4-service-11-period-0", "contact-5-service-5-period-1"],
+  "workflow_cases": [
+    {"id": "dense_exact_invoice", "category": "dense_identity_collision", "turns": [{"text": "Tell me the amount for Sarah at Acme's invoice INV-1001. There are several other invoices for Sarah; use this invoice's saved email only.", "expect": "read", "owner": "contact-0-service-0-period-1", "reply_terms": ["501"]}]},
+    {"id": "dense_semantic_invoice", "category": "dense_paraphrase", "turns": [{"text": "What is the recorded amount on Maya at Beta's winter bill for new power packs for the lifting trucks? Read that saved task, not her other invoices.", "expect": "read", "owner": "contact-1-service-1-period-0", "reply_terms": ["602"]}]},
+    {"id": "dense_changed_instructions", "category": "changed_instructions", "turns": [{"text": "For Sarah at Acme's July website accessibility audit, tell me the corrected amount and whether collection is currently on hold. Do not create or send anything.", "expect": "read", "owner": "contact-0-service-7-period-1", "reply_terms": ["hold"], "reply_amounts": [1180], "forbidden_reply_amounts": [515]}]},
+    {"id": "dense_ambiguous_contact", "category": "dense_ambiguity", "turns": [{"text": "What is the amount on Sarah at Acme's invoice? I cannot remember which one.", "expect": "clarify", "clarification_terms": [["which", "invoice"], ["invoice", "number"], ["which", "one"]]}]}
+  ]
+}

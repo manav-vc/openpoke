@@ -135,17 +135,24 @@ def concurrency_measurements(directory):
     # No model execution: advance a deterministic clock and complete each claimed
     # job exactly one simulated second later. Claim decisions are production SQL.
     now = [0.0]
+    max_concurrency = Settings.model_fields["agent_max_concurrency"].default
+    jobs = max_concurrency + max(1, max_concurrency // 5)
     registry = AgentRegistry(directory / "queue.sqlite")
     queue = ExecutionService(registry, clock=lambda: now[0],
-                             settings=SimpleNamespace(agent_max_concurrency=4))
-    for i in range(24):
+                             settings=SimpleNamespace(agent_max_concurrency=max_concurrency))
+    completions = {}
+    for i in range(jobs):
         agent = registry.create_agent(f"Independent task {i}", f"Synthetic responsibility {i}")
         batch = queue.create_batch(f"independent-request-{i}")
         job = immediate(queue.submit(agent["id"], "Complete synthetic work", batch_id=batch["id"], request_id=f"job-{i}"))
         assert job["status"] == "queued"
         immediate(queue.seal_batch(batch["id"]))
-    points, completions, finished = [], {}, 0
-    for tick in range(7):
+        # Admit while the burst arrives, all at simulated time zero. This keeps
+        # the waiting-room limit separate from the running-job limit.
+        while (claimed := queue._claim_next()) is not None:
+            completions[claimed["id"]] = 1.0
+    points, finished = [], 0
+    for tick in range((jobs + max_concurrency - 1) // max_concurrency + 1):
         now[0] = float(tick)
         for job_id, end in list(completions.items()):
             if end <= now[0]:
@@ -157,16 +164,16 @@ def concurrency_measurements(directory):
             completions[job["id"]] = now[0] + 1.0
         with registry.connect() as conn:
             counts = dict(conn.execute("SELECT status,COUNT(*) FROM execution_jobs GROUP BY status"))
-        assert counts.get("running", 0) <= 4
-        assert sum(counts.values()) == 24
-        points.append({"simulated_seconds": tick, "upstream_running": 24 if tick == 0 else 0,
+        assert counts.get("running", 0) <= max_concurrency
+        assert sum(counts.values()) == jobs
+        points.append({"simulated_seconds": tick, "upstream_running": jobs if tick == 0 else 0,
                        "new_running": counts.get("running", 0), "new_waiting": counts.get("queued", 0),
                        "new_completed": finished})
-    assert finished == 24 and not completions
+    assert finished == jobs and not completions
     baseline = original("server/agents/execution_agent/batch_manager.py")
-    return {"points": points, "jobs": 24, "job_duration_seconds": 1, "max_concurrency": 4,
+    return {"points": points, "jobs": jobs, "job_duration_seconds": 1, "max_concurrency": max_concurrency,
             "upstream_method": "Source-derived: each caller immediately awaits its own runtime; no global admission limit.",
-            "new_method": "Production submit() and _claim_next(); deterministic simulated completions; scheduler/model/network excluded.",
+            "new_method": "Production submit() and _claim_next() interleaved during arrival at simulated time zero; deterministic simulated completions; scheduler/model/network excluded.",
             "baseline_source_sha256": hashlib.sha256(baseline.encode()).hexdigest()}
 
 
@@ -194,7 +201,9 @@ def main():
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"output": str(args.output), "roster": data["roster"],
-                      "history": data["history"]["points"][-1], "concurrency_peak": 4, "completed": 24}, indent=2))
+                      "history": data["history"]["points"][-1],
+                      "concurrency_peak": max(p["new_running"] for p in data["concurrency"]["points"]),
+                      "completed": data["concurrency"]["points"][-1]["new_completed"]}, indent=2))
 
 
 if __name__ == "__main__":

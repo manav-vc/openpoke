@@ -13,11 +13,17 @@ All automated tests, evaluation code, and labeled fixtures live in this director
 | [test_retrieval.py](test_retrieval.py) | Checks hybrid retrieval, identity matching, embedding failures, and candidate limits. |
 | [test_runtime_integration.py](test_runtime_integration.py) | Checks registry, queue, interaction, trigger, and reset integration with fake models. |
 | [test_workflow_evaluation.py](test_workflow_evaluation.py) | Checks workflow scoring, spend reservations, partial reports, and data isolation without live calls. |
+| [test_workflow_comparison.py](test_workflow_comparison.py) | Checks the shared upstream/fork outcome contract and usage accounting. |
+| [test_memory_evaluation.py](test_memory_evaluation.py) | Rejects wrong corrections, unsupported citations, and unauthorized memory-probe writes. |
+| [test_hard_retrieval_evaluation.py](test_hard_retrieval_evaluation.py) | Checks dense task collisions, retrieval metrics, and numeric fact scoring. |
 | [conftest.py](conftest.py) | Configures offline test defaults and blocks real HTTP requests. |
 | [evaluation/evaluate_agent_retrieval.py](evaluation/evaluate_agent_retrieval.py) | Scores 60 labeled retrieval cases and benchmarks search with 1,000 and 10,000 saved agents. |
 | [fixtures/agent_retrieval_cases.json](fixtures/agent_retrieval_cases.json) | Defines synthetic agents and labeled exact-reference, paraphrase, ambiguity, archive, no-match, and identity-conflict cases. |
 | [evaluation/evaluate_agent_workflows.py](evaluation/evaluate_agent_workflows.py) | Runs real interaction/execution models and embeddings with controlled email tools across nine scenarios and ten user turns. |
 | [fixtures/agent_workflow_cases.json](fixtures/agent_workflow_cases.json) | Defines workflow requests and expected owners, actions, facts, clarification, and approval behavior. |
+| [evaluation/compare_agent_workflows.py](evaluation/compare_agent_workflows.py) | Runs the same authored requests, model, saved tasks, and synthetic mailbox through upstream and the fork. |
+| [evaluation/evaluate_agent_memory.py](evaluation/evaluate_agent_memory.py) | Generates real summaries of 72 historical exchanges, then verifies exact answers against retrieved source records. |
+| [evaluation/evaluate_agent_retrieval_hard.py](evaluation/evaluate_agent_retrieval_hard.py) | Compares three retrieval modes on 288 plausible competing agents and runs four full IA/EA turns. |
 
 Run these commands from the repository root:
 
@@ -45,7 +51,7 @@ This optional evaluation runs the application's interaction and execution loops,
 
 The nine scenarios cover exact identifiers, paraphrases, two invoices for the same person, archived work, ambiguity, new work, a two-turn follow-up, withheld approval, and an unavailable email tool. Each scenario starts with five saved tasks and 40 unrelated agents. Expected answers are used only by the scorer, never supplied to the runtime.
 
-[Recorded results and per-turn evidence](../docs/evaluation/README.md): the latest completed full run passed **9/10 turns**; the earlier full run passed **10/10**, using the same application code and fixtures. Both passed all six draft workflows and selected the correct EA in all nine applicable turns. The latest unavailable-email scenario failed `job_outcomes_valid` because its job ended as `interrupted`, despite correctly reporting the outage without guessing a due date. Both runs used real models with synthetic email tools.
+[Recorded results and per-turn evidence](../docs/evaluation/README.md) include the final **10/10 fork versus 6/10 upstream** shared-contract comparison and preserve the original **10/10 and 9/10** runs on identical earlier source. The historical unavailable-email scenario failed because a model-selected `needs_review` state incorrectly interrupted the job. That runtime bug is fixed and passes in the new full run. The results page also includes the dense retrieval ablation and **4/4** production-default memory evaluation.
 
 Validate fixtures without making model calls:
 
@@ -82,7 +88,42 @@ Report updates retry temporary Windows file locks. If replacement stays blocked,
 
 Passing a draft case requires the correct agent, recipient, thread, requested facts, exactly one persisted draft shown verbatim to the user, and a pending approval. A blocked send attempt still fails the case. Read-only answers may use the correct saved source without creating a redundant execution job. Clarifications must ask a relevant distinguishing question and perform no work. Incomplete runs always show coverage and cannot pass overall. Exit codes: **0** complete pass, **1** complete with failures, **2** blocked/incomplete.
 
-This is a small authored exploratory suite, not production accuracy or an upstream baseline comparison. Reply/clarification checks use disclosed word matching and may reject valid paraphrases. Seed indexing is measured separately from workflow latency. Compaction and automatic archiving are disabled for reproducibility; existing archived-agent reuse is still exercised. Nested Gmail search-model quality, real mailbox behavior, restart recovery, and summary quality remain outside this evaluation. Model behavior and timings vary across runs, as the two recorded full runs demonstrate.
+This base suite is small and authored; it is not a production accuracy estimate. The paired runner below adds an upstream comparison, and the separate memory runner evaluates compaction. Reply/clarification checks use disclosed word matching and may reject valid paraphrases. Seed indexing is measured separately from workflow latency. Compaction and automatic archiving are disabled in workflow cases; existing archived-agent reuse is still exercised. Nested Gmail search-model quality, real mailbox behavior and restart recovery remain outside these live workflows. Model behavior and timings vary across runs.
+
+## Controlled upstream comparison
+
+The paired runner reads upstream `5b5f635935a64ab37884c025d70abb0ed731c094` from Git and runs both source versions in separate temporary directories. It pins the same chat model, including upstream's older hardcoded settings. Both receive the same requests, mailbox messages, saved task names and facts, and 40 distractors. Native prompts, tools, context construction and agent loops remain implementation-specific.
+
+```powershell
+python tests/evaluation/compare_agent_workflows.py
+python tests/evaluation/compare_agent_workflows.py --live --model anthropic/claude-sonnet-5.5
+```
+
+Each arm has a separate $2 estimated budget, 150-call limit and 750,000-token limit. Use `--case ID` for a subset or `--only upstream` / `--only fork` to run one arm. Reports retain original checks. Shared task success measures correct persisted actions and facts, correct task reuse, clarification, and no attempted send; exact preview and persisted approval metadata are reported separately because upstream lacks the fork's approval-state mechanism. A draft case requires an EA-owned persisted email-tool draft, so an IA-only text preview does not pass that contract. Chat prompt tokens include every per-turn IA/EA call. Workflow latency excludes embedding indexing; setup usage is recorded separately. HTTP 402 stops further provider calls rather than repeatedly testing an unavailable account.
+
+The upstream import adapter bypasses eager web-server initialization. On Windows it supplies the Unix roster-lock API using a real Windows file lock. External email tools are replaced at the boundary, and batch delivery tasks are observed without replacing native agent loops. This does not evaluate startup, real Gmail, or multi-process locking. See [saved results and limitations](../docs/evaluation/README.md).
+
+## Long-history accuracy
+
+```powershell
+python tests/evaluation/evaluate_agent_memory.py
+python tests/evaluation/evaluate_agent_memory.py --live
+```
+
+The fixture has 72 complete historical exchanges with an old amount, a later correction, exact invoice/purchase-order/bank references, a created draft and explicit withheld approval. Production `HistoryService.compact` generates summaries with the configured model; the final summary must cover all earlier complete exchanges. Every source event must remain intact. Production EA runs then answer four read-only probes with exact structured facts and citations. Passing requires the necessary original events to have been retrieved, all citations to refer to retrieved events, no attempted write, and pending approval to remain intact. Labels are used only by the scorer.
+
+Defaults use the submitted 8,000-token history / 2,000-token summary budgets. `--history-tokens` and `--summary-tokens` allow stress configurations. `--with-baseline` additionally runs the same probes with bounded recent history and source retrieval but no summary; this is an ablation of the working view, not upstream. This tests the combined summary-and-source-retrieval design; it does not claim summaries alone preserve every fact. Earlier incomplete attempts remain separate from the final report.
+
+## Dense retrieval and ablation
+
+```powershell
+python tests/evaluation/evaluate_agent_retrieval_hard.py
+python tests/evaluation/evaluate_agent_retrieval_hard.py --live
+```
+
+The corpus has 12 contacts with 24 invoices each: 288 plausible saved tasks, shared email threads, overlapping purposes, changed instructions and archived work. Thirty-six queries include 34 labeled targets and two intentionally ambiguous requests. Hybrid, keyword-only and semantic-only modes share production identity guards; only ranking channels differ. Real embeddings are reused between ablations, so differences do not come from separate provider calls. Report recall@10 and @30 by category; exact-ID resolution bypasses ranking and is disclosed separately.
+
+Four additional user turns run the complete production IA/EA, queue and delivery paths over that corpus. They check exact invoice selection, a paraphrased near collision, corrected instructions, and clarification. Numeric reply scoring accepts thousands separators, verifies the corrected amount and rejects the superseded amount. The original word-match result and the corrected score are both saved; the model answer is not regenerated. Default billable spend is capped at $1 estimated. See [saved evidence](../docs/evaluation/README.md).
 
 ## Before/after charts
 
@@ -93,5 +134,7 @@ python tests/evaluation/measure_overload.py
 python -m pip install matplotlib
 python tests/evaluation/render_overload_charts.py
 ```
+
+The [updated evaluation images](../docs/charts/README.md) also show workflow success, retrieval quality, memory preservation and the token/latency tradeoff from the saved reports. Their evidence and limitations are documented alongside the images.
 
 No model or Gmail calls are made. Concurrency uses simulated one-second jobs and actual SQLite admission; the asynchronous scheduler and real execution latency are outside this fixture. Token values are estimates, and the tokenizer/fallback is recorded with the measurements.

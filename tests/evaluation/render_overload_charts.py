@@ -39,7 +39,10 @@ def save(fig, name):
         box = text.get_window_extent(renderer)
         assert box.x0 >= 0 and box.y0 >= 0 and box.x1 <= fig.bbox.width and box.y1 <= fig.bbox.height, text.get_text()
     for extension in ("png", "svg"):
-        fig.savefig(OUT / f"{name}.{extension}", dpi=180, facecolor=fig.get_facecolor(), metadata={"Date": None} if extension == "svg" else None)
+        path = OUT / f"{name}.{extension}"
+        fig.savefig(path, dpi=180, facecolor=fig.get_facecolor(), metadata={"Date": None} if extension == "svg" else None)
+        if extension == "svg":
+            path.write_text("\n".join(line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()) + "\n", encoding="utf-8")
     plt.close(fig)
 
 
@@ -88,14 +91,17 @@ after = [p["new_running"] for p in points]
 ax.step(x, before, where="post", color=BEFORE, linewidth=3, label="Before")
 ax.step(x, after, where="post", color=AFTER, linewidth=3, label="After")
 ax.fill_between(x, after, step="post", alpha=.12, color=AFTER)
-ax.axhline(4, color=AFTER, linestyle=(0,(3,4)), linewidth=1, alpha=.55)
-ax.annotate("24", (.5, 24), xytext=(0, 10), textcoords="offset points", ha="center", color=BEFORE, weight="bold")
-ax.annotate("4", (3, 4), xytext=(0, 10), textcoords="offset points", ha="center", color=AFTER, weight="bold")
+limit = DATA["concurrency"]["max_concurrency"]
+ax.axhline(limit, color=AFTER, linestyle=(0,(3,4)), linewidth=1, alpha=.55)
+ax.annotate(str(before[0]), (.5, before[0]), xytext=(0, 10), textcoords="offset points", ha="center", color=BEFORE, weight="bold")
+for i, value in enumerate(after[:-1]):
+    if value and (i == 0 or value != after[i-1]):
+        ax.annotate(str(value), ((x[i]+x[i+1])/2, value), xytext=(0, 10), textcoords="offset points", ha="center", color=AFTER, weight="bold")
 ax.set_xlabel("Simulated time (seconds)")
 ax.set_ylabel("Concurrent EA jobs")
-ax.set_xlim(-.15, 6.3)
-ax.set_ylim(0, 28)
-ax.set_yticks([0,4,8,12,16,20,24])
+ax.set_xlim(-.05, x[-1]+.1)
+ax.set_ylim(0, max(before)*1.2)
+ax.yaxis.set_major_locator(MaxNLocator(nbins=7, integer=True))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 save(fig, "03-execution-concurrency")
 print("Created three PNGs and three editable SVGs in", OUT)

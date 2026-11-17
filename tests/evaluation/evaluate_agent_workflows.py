@@ -523,7 +523,7 @@ def main():
                                      *arguments], cwd=destination, env=env, timeout=args.run_timeout)
             return result.returncode
         except subprocess.TimeoutExpired:
-            report = json.loads(output.read_text()) if output.exists() else {"turns": [], "planned_turns": 0}
+            report = json.loads(output.read_text(encoding="utf-8")) if output.exists() else {"turns": [], "planned_turns": 0}
             report.update(status="incomplete", error="Run deadline exceeded (including event-loop initialization)",
                           usage_incomplete=True,
                           usage_note="Consult reserved/finished call events for in-flight attempts; provider charges may be unknown.")

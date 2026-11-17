@@ -154,7 +154,12 @@ class HistoryService:
         if not source_parts:
             return False
         source = "\n\n".join(source_parts)
-        prompt = ("Summarize completed task work. Preserve unresolved instructions, pending approvals, exact identifiers, and source_event IDs. "
+        prompt = ("Summarize completed task work in at most " + str(self.settings.agent_summary_tokens) + " tokens. "
+                  "The saved summary has a strict size limit: prioritize current corrections and superseded values, unresolved instructions, "
+                  "pending approvals, exact task identifiers and the source_event IDs supporting these facts. "
+                  "Preserve distinctions between original and corrected amounts and never treat a correction as approval. "
+                  "Group routine operational updates briefly instead of enumerating every entry. "
+                  "Do not infer that approvals or unresolved work are absent just because they are not mentioned in this batch. "
                   "Do not mark a task completed or invent missing information.\nPrevious summary:\n" + (previous["summary"] if previous else "") + "\nEvents:\n" + source)
         if summarizer is None:
             from ...openrouter_client import request_chat_completion
