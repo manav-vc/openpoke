@@ -77,6 +77,17 @@ Automated tests and scale benchmarks use offline stand-ins. The dense retrieval,
 
 These runs use real chat models and embeddings with synthetic email tools. See the [evaluation guide](tests/README.md#real-model-workflows) to reproduce them. Real Gmail workflows remain unvalidated.
 
+## Next priorities
+
+With agent overload addressed in this fork, my next priorities are **economics and response latency**. These are planned directions only. The optimizations below are **not implemented or evaluated** in this submission.
+
+| Area | Gap to address | Planned direction |
+| --- | --- | --- |
+| **Economics** | Model calls across user requests and background services can make monthly cost per user difficult to control. | Measure spending across chat and background work, then evaluate smaller models for suitable background operations while preserving output quality. Roughly **US$50 per user/month** is an initial planning reference, not an enforced cap or measured forecast. |
+| **Response latency** | The recorded paired run had higher median workflow latency in the fork: **22.03 s versus 15.22 s** upstream. | Measure time to the first useful update separately from task completion, identify bottlenecks, and reduce avoidable model and tool round trips while retaining identity and approval checks. |
+
+These priorities build on the gaps discussed in the [OpenPoke explainer](https://www.shloked.com/openpoke). The latency observation comes from the [recorded evaluation](docs/evaluation/README.md); it is a small controlled comparison, not a production performance estimate. Detailed designs and validation are future work.
+
 ## Run and explore
 
 - [Local setup](docs/setup.md)
